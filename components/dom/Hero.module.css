@@ -1,0 +1,92 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 clamp(20px, 4.5vw, 56px) 8vh;
+}
+
+/* Bottom-left block — keeps the screen center clear for the particle logo. */
+.block {
+  max-width: 1100px;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.headline {
+  font-weight: 300;
+  font-size: clamp(2.6rem, 7.5vw, 7rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0.45rem 0 1.4rem;
+  max-width: 8.5em;
+  color: var(--text);
+}
+
+.sub {
+  color: var(--dim);
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.6;
+  max-width: 36em;
+  margin: 0;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  margin: 6vh 0 0;
+}
+
+.hintLine {
+  display: inline-block;
+  width: 38px;
+  height: 1px;
+  background: var(--dim);
+  transform-origin: left center;
+  animation: hintPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%,
+  100% {
+    transform: scaleX(0.3);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .viewport {
+    padding-bottom: 7vh;
+  }
+  .headline {
+    font-size: clamp(2.3rem, 11vw, 2.9rem);
+    margin-bottom: 1rem;
+  }
+  .hint {
+    margin-top: 4.5vh;
+  }
+}

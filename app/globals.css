@@ -1,0 +1,86 @@
+:root {
+  --bg: #000000;
+  --text: #f2f2f2;
+  --dim: #7a7a7a;
+  --accent: #45f0d8;
+  --baropacity: 0;
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 242, 242, var(--baropacity)) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(242, 242, 242, var(--baropacity));
+}
+
+::selection {
+  background: var(--accent);
+  color: #000;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Canvas sits behind; DOM layer above with pointer fall-through */
+.canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.dom-layer {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dom-layer a,
+.dom-layer button,
+.dom-layer input,
+.dom-layer textarea,
+.dom-layer [data-interactive] {
+  pointer-events: auto;
+}
+
+/* Reduced motion / no-WebGL fallback */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

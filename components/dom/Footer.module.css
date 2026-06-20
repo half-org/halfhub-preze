@@ -1,0 +1,28 @@
+.footer {
+  border-top: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  padding: 44px clamp(20px, 4.5vw, 56px) 56px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+}
+
+.line {
+  text-transform: uppercase;
+}
+
+.mail {
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.mail:hover,
+.mail:focus-visible {
+  color: var(--text);
+}

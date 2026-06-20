@@ -1,0 +1,64 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(20px, 4.5vw, 56px) 0 clamp(20px, 10vw, 160px);
+}
+
+.inner {
+  max-width: 760px;
+  border-left: 1px solid #1a1a1a;
+  padding-left: clamp(20px, 3vw, 44px);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.heading {
+  font-weight: 300;
+  font-size: clamp(2rem, 4.6vw, 3.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0.5em 0 0.6em;
+}
+
+/* Second half of the heading: transparent fill, 1px stroke in the text color.
+   -webkit-text-fill-color keeps `color` (and so currentColor) intact;
+   unsupporting browsers simply render the solid fill. */
+.outline {
+  -webkit-text-stroke: 1px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+.body {
+  color: var(--dim);
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  line-height: 1.7;
+  max-width: 56ch;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .viewport {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .inner {
+    padding-left: 16px;
+  }
+}

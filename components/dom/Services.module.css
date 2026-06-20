@@ -1,0 +1,213 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(76px, 11vh, 120px) clamp(20px, 4.5vw, 56px) clamp(28px, 6vh, 64px);
+}
+
+.head {
+  margin: 0 0 2vh;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.heading {
+  font-weight: 300;
+  font-size: clamp(1.25rem, 1.7vw, 1.6rem);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0.5em 0 0;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.deck {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding-right: 96px;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cardAbove {
+  transform: translateY(-28px);
+}
+
+.cardBelow {
+  transform: translateY(28px);
+}
+
+.cardActive {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.drift {
+  max-width: 760px;
+  will-change: transform;
+}
+
+/* Giant index — outlined in the service color (set via inline `color`),
+   echoing the dissolving-half brand motif. Falls back to solid fill where
+   text-stroke is unsupported. */
+.index {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(3.6rem, 9vw, 7rem);
+  line-height: 1;
+  margin: 0 0 1.4rem;
+  -webkit-text-stroke: 1.5px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+.name {
+  font-weight: 500;
+  font-size: clamp(2.5rem, 4.6vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0;
+}
+
+.tagline {
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  line-height: 1.5;
+  color: var(--dim);
+  max-width: 34em;
+  margin: 1rem 0 0;
+}
+
+.points {
+  list-style: none;
+  margin: 2.2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.point {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #bdbdbd;
+}
+
+.pointMark {
+  font-weight: 700;
+}
+
+/* Progress rail — vertical ticks on the right (desktop). */
+.rail {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.tick {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #333;
+  transition:
+    width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s ease;
+}
+
+.tickActive {
+  width: 38px;
+}
+
+.railCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+  .viewport {
+    padding-top: clamp(68px, 10vh, 96px);
+  }
+  .deck {
+    padding-right: 0;
+  }
+  .card {
+    justify-content: flex-start;
+    padding-top: 2vh;
+  }
+  .index {
+    font-size: clamp(3rem, 16vw, 4.5rem);
+    margin-bottom: 1rem;
+  }
+  .name {
+    font-size: clamp(2rem, 9vw, 2.6rem);
+  }
+  .points {
+    margin-top: 1.6rem;
+    gap: 0.55rem;
+  }
+  .point {
+    font-size: 11px;
+  }
+  /* Rail becomes a horizontal strip at the bottom. */
+  .rail {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .tick {
+    width: 14px;
+  }
+  .tickActive {
+    width: 26px;
+  }
+  .railCount {
+    margin: 0 0 0 10px;
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "composite": {
+    "angle": 0.35,
+    "grain": 0.035,
+    "vignette": 0.55,
+    "contrast": 1.04,
+    "wipeDisplace": 0.06,
+    "velocityInfluence": 0.12,
+    "fadeInSeconds": 4.0
+  },
+  "camera": {
+    "fov": 45,
+    "wobble": 0.25,
+    "paths": {
+      "home":     { "from": { "pos": [0, 1.6, 9.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 7.2], "look": [0, 0.2, 0] } },
+      "services": { "from": { "pos": [0.4, 0.2, 8.0], "look": [0, 0, 0] }, "to": { "pos": [-0.4, -0.2, 8.0], "look": [0, 0, 0] } },
+      "about":    { "from": { "pos": [0, 0.6, 7.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 6.4], "look": [0, 0, 0] } },
+      "contact":  { "from": { "pos": [0, 1.2, 8.0],  "look": [0, 0, 0] }, "to": { "pos": [0, 0.0, 6.4],  "look": [0, 0, 0] } }
+    }
+  },
+  "hero": {
+    "logoScale": 3.6,
+    "particleSize": 0.024,
+    "noiseAmp": 0.07,
+    "noiseFreq": 0.55,
+    "pulseSpeed": 0.6,
+    "pointerRadius": 1.4,
+    "pointerForce": 0.55,
+    "splitDissolve": 0.9,
+    "scrollRotate": 2.6
+  },
+  "services": {
+    "cardW": 3.4,
+    "cardH": 2.1,
+    "spacing": 2.6,
+    "pathCurve": 0.9,
+    "hoverLerp": 0.08,
+    "fresnelPower": 2.2
+  },
+  "field": {
+    "about":   { "color": "#8F8AFF", "count": 900, "spread": 9, "drift": 0.18 },
+    "contact": { "color": "#45F0D8", "count": 700, "spread": 8, "drift": 0.12 }
+  }
+}

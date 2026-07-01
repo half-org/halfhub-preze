@@ -12,10 +12,13 @@
     "fov": 45,
     "wobble": 0.25,
     "paths": {
-      "home":     { "from": { "pos": [0, 1.6, 9.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 7.2], "look": [0, 0.2, 0] } },
-      "services": { "from": { "pos": [0.4, 0.2, 8.0], "look": [0, 0, 0] }, "to": { "pos": [-0.4, -0.2, 8.0], "look": [0, 0, 0] } },
-      "about":    { "from": { "pos": [0, 0.6, 7.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 6.4], "look": [0, 0, 0] } },
-      "contact":  { "from": { "pos": [0, 1.2, 8.0],  "look": [0, 0, 0] }, "to": { "pos": [0, 0.0, 6.4],  "look": [0, 0, 0] } }
+      "home":       { "from": { "pos": [0, 1.6, 9.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 7.2], "look": [0, 0.2, 0] } },
+      "services":   { "from": { "pos": [0.4, 0.2, 8.0], "look": [0, 0, 0] }, "to": { "pos": [-0.4, -0.2, 8.0], "look": [0, 0, 0] } },
+      "references": { "from": { "pos": [-0.3, 0.4, 8.4], "look": [0, 0, 0] }, "to": { "pos": [0.3, -0.2, 7.6], "look": [0, 0, 0] } },
+      "aiready":    { "from": { "pos": [0, 0.8, 7.6],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.3, 6.8], "look": [0, 0, 0] } },
+      "about":      { "from": { "pos": [0, 0.6, 7.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 6.4], "look": [0, 0, 0] } },
+      "cta":        { "from": { "pos": [0, 0.5, 7.8],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.4, 6.6], "look": [0, 0, 0] } },
+      "contact":    { "from": { "pos": [0, 1.2, 8.0],  "look": [0, 0, 0] }, "to": { "pos": [0, 0.0, 6.4],  "look": [0, 0, 0] } }
     }
   },
   "hero": {
@@ -37,8 +40,19 @@
     "hoverLerp": 0.08,
     "fresnelPower": 2.2
   },
+  "references": {
+    "cardW": 4.2,
+    "cardH": 2.625,
+    "mobileScale": 0.34,
+    "spacing": 3.6,
+    "hoverLerp": 0.08,
+    "tilt": 0.12,
+    "vignette": 0.42
+  },
   "field": {
+    "aiready": { "color": "#B07CFF", "count": 800, "spread": 9, "drift": 0.15 },
     "about":   { "color": "#8F8AFF", "count": 900, "spread": 9, "drift": 0.18 },
+    "cta":     { "color": "#FF6FB3", "count": 650, "spread": 8, "drift": 0.12 },
     "contact": { "color": "#45F0D8", "count": 700, "spread": 8, "drift": 0.12 }
   }
 }

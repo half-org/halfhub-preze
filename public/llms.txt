@@ -1,0 +1,42 @@
+# HALF — software studio
+
+> HALF is a small Czech software studio that builds digital products end-to-end:
+> websites, web apps, mobile apps, APIs, desktop software, AI integrations and
+> automation. Positioning: "The other half of your idea" — the client brings the
+> idea, HALF designs, builds, ships and operates it. Direct contact with the
+> people writing the code, no middle layers.
+
+## Services
+
+- Websites — presentational sites (Next.js/Astro, WebGL & motion design, SEO and GEO by default)
+- Web apps — internal tools to SaaS products (React/Next.js, realtime, dashboards)
+- Mobile apps — iOS & Android from one codebase (React Native/Expo)
+- APIs & integrations — REST/GraphQL, payments, ERP, CRM
+- Desktop apps — Windows, macOS, Linux (Electron/Tauri)
+- AI integration — LLMs in business workflows (Claude/GPT, RAG, measurable output)
+- Automation — workflows, scripting, reporting; hours saved weekly
+
+## AI-ready websites
+
+HALF builds websites prepared for AI search (GEO) and AI agents:
+structured data (schema.org JSON-LD), server-rendered content readable without
+JavaScript, llms.txt, open access for AI crawlers, copy written to be cited by
+AI assistants, and optional machine-readable APIs or MCP endpoints.
+
+## Selected work
+
+- Je Postaveno (jepostaveno.cz) — Czech construction portal: articles and series,
+  verified-company directory, advisory Q&A with an AI assistant.
+- Izolace FUK (izolacefuk.cz) — marketing site for an insulation contractor:
+  project gallery, lead-inquiry form, 4,000+ completed projects nationwide.
+
+## Offer
+
+Free clickable demo: HALF builds a clickable prototype with test data before any
+contract — no invoice, no commitment.
+
+## Contact
+
+- Email: solutions.half@gmail.com
+- Language: Czech (default, /) and English (/en)
+- Replies within 24 hours

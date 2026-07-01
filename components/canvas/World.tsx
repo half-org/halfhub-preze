@@ -12,13 +12,17 @@ import design from '@/lib/design-data.json'
 import type { GPUPolicy, SceneId, SceneProps } from '@/lib/types'
 import { HeroScene } from './scenes/HeroScene'
 import { ServicesScene } from './scenes/ServicesScene'
+import { ReferencesScene } from './scenes/ReferencesScene'
 import { FieldScene } from './scenes/FieldScene'
 import { compositeVert, compositeFrag } from '@/shaders/composite'
 
 const COMPONENTS: Record<SceneId, React.ComponentType<SceneProps>> = {
   home: HeroScene,
   services: ServicesScene,
+  references: ReferencesScene,
+  aiready: FieldScene,
   about: FieldScene,
+  cta: FieldScene,
   contact: FieldScene,
 }
 

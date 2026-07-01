@@ -14,12 +14,12 @@ const HERO_END = SECTION_RANGES[0].range[1]
 const FADE_A = HERO_END * 0.55
 const FADE_B = HERO_END * 0.95
 
-function NavLink({ id, label }: { id: string; label: string }) {
+function NavLink({ id, label, className }: { id: string; label: string; className?: string }) {
   const { ref, start } = useScramble<HTMLSpanElement>(label)
   return (
     <a
       href={`#${id}`}
-      className={styles.link}
+      className={`${styles.link}${className ? ` ${className}` : ''}`}
       onClick={(e) => {
         e.preventDefault()
         scrollToId(id)
@@ -82,7 +82,9 @@ export function Nav({ lang }: { lang: Lang }) {
         </a>
         <nav className={styles.nav}>
           <NavLink id="services" label={t.services} />
-          <NavLink id="about" label={t.about} />
+          <NavLink id="references" label={t.references} />
+          <NavLink id="about" label={t.about} className={styles.hideSm} />
+          <NavLink id="cta" label={t.demo} className={styles.hideSm} />
           <NavLink id="contact" label={t.contact} />
           <LangLink href={t.langHref} label={t.lang} />
         </nav>

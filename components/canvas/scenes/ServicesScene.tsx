@@ -2,17 +2,18 @@
 
 import * as THREE from 'three'
 import { useEffect, useMemo, useRef } from 'react'
-import { useFrame, createPortal } from '@react-three/fiber'
+import { useFrame, useThree, createPortal } from '@react-three/fiber'
 import design from '@/lib/design-data.json'
 import { SERVICES } from '@/lib/content'
 import { serviceProgress } from '@/lib/services-progress'
+import { SECTION_RANGES, resolveScroll } from '@/lib/sections'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
+import { loaderState } from '@/lib/loader-state'
 import type { SceneProps } from '@/lib/types'
 import { cardVert, cardFrag } from '@/shaders/card'
 
 const VISIBLE_OFFSET = 3.2
-const RAYCAST_MARGIN = 0.02 // normalized scroll padding around the section
 
 /**
  * Services scene — 7 glassy procedural shader cards flowing through focus
@@ -20,10 +21,16 @@ const RAYCAST_MARGIN = 0.02 // normalized scroll padding around the section
  * `serviceProgress` formula so canvas and DOM overlay always agree.
  * Hover is a manual raycast (R3F pointer events don't cross portals).
  */
-export function ServicesScene({ scene, policy, range }: SceneProps) {
+export function ServicesScene({ id, scene, policy, range }: SceneProps) {
   const cfg = design.services
   const lowTier = policy.tier <= 1
-  const spacing = policy.mobile ? cfg.spacing * 0.85 : cfg.spacing
+  // full pictogram detail needs a strong mobile GPU — the default-tier (2)
+  // phone gets the simplified variants, not just tier<=1
+  const detail = policy.mobile ? policy.tier >= 3 : !lowTier
+  const sectionIndex = useMemo(() => SECTION_RANGES.findIndex((r) => r.id === id), [id])
+  // layout tracks the CSS breakpoint (760px), not the UA — see ReferencesScene
+  const narrow = useThree((s) => s.size.width) <= 760
+  const spacing = narrow ? cfg.spacing * 0.85 : cfg.spacing
   const waveAmp = policy.mobile ? 0.04 : 0.08
 
   const geometry = useMemo(() => {
@@ -38,7 +45,8 @@ export function ServicesScene({ scene, policy, range }: SceneProps) {
         (service, i) =>
           new THREE.ShaderMaterial({
             vertexShader: cardVert,
-            fragmentShader: cardFrag,
+            // per-service pictogram variant, simplified on weak GPUs
+            fragmentShader: cardFrag(i, detail),
             transparent: true,
             depthWrite: false,
             uniforms: {
@@ -55,7 +63,7 @@ export function ServicesScene({ scene, policy, range }: SceneProps) {
             },
           })
       ),
-    [lowTier, waveAmp, cfg]
+    [lowTier, detail, waveAmp, cfg]
   )
 
   const meshRefs = useRef<(THREE.Mesh | null)[]>([])
@@ -74,6 +82,33 @@ export function ServicesScene({ scene, policy, range }: SceneProps) {
       cursorOn.current = false
     }
   }, [geometry, materials])
+
+  // warm all 7 pictogram programs once the loader exits — otherwise up to 4
+  // of them compile synchronously on the first scroll into the section
+  const gl = useThree((s) => s.gl)
+  const camera = useThree((s) => s.camera)
+  useEffect(() => {
+    let cancelled = false
+    let unsub: (() => void) | null = null
+    const warm = () => {
+      if (!cancelled) gl.compileAsync(scene, camera).catch(() => {})
+    }
+    if (loaderState.getSnapshot().complete) {
+      warm()
+    } else {
+      unsub = loaderState.subscribe(() => {
+        if (loaderState.getSnapshot().complete) {
+          unsub?.()
+          unsub = null
+          warm()
+        }
+      })
+    }
+    return () => {
+      cancelled = true
+      unsub?.()
+    }
+  }, [gl, scene, camera, materials])
 
   useFrame((state, dt) => {
     const d = Math.min(dt, 1 / 20)
@@ -100,20 +135,24 @@ export function ServicesScene({ scene, policy, range }: SceneProps) {
       mesh.rotation.y = -offset * 0.14 * cfg.pathCurve
 
       const u = materials[i].uniforms
-      u.uTime.value += d
+      // integrate time at a hover-boosted rate — smooth speed-up, no phase jump
+      u.uTime.value += d * (1 + u.uHover.value * 0.4)
       u.uActive.value = active
       u.uMouse.value.set(pointerState.sx, pointerState.sy)
       if (mesh.visible) visibleMeshes.push(mesh)
     }
 
-    // manual raycast hover, every 2nd frame, only while the section is live
+    // manual raycast hover, every 2nd frame — gated on exclusive section
+    // ownership so services and references never fight over the cursor in
+    // the shared wipe zone (past 50% of a wipe, ownership hands over)
     frameCount.current++
     if (frameCount.current % 2 === 0) {
-      const inSection =
-        scrollState.progress > start - RAYCAST_MARGIN &&
-        scrollState.progress < end + RAYCAST_MARGIN
+      const rs = resolveScroll(scrollState.progress)
+      const owns =
+        (rs.index === sectionIndex && rs.transition <= 0.5) ||
+        (rs.index === sectionIndex - 1 && rs.transition > 0.5)
       let hit: THREE.Object3D | null = null
-      if (inSection && visibleMeshes.length > 0) {
+      if (owns && visibleMeshes.length > 0) {
         for (const mesh of visibleMeshes) mesh.updateMatrixWorld()
         pointerNdc.set(pointerState.x, pointerState.y)
         raycaster.setFromCamera(pointerNdc, state.camera)
@@ -141,7 +180,7 @@ export function ServicesScene({ scene, policy, range }: SceneProps) {
 
   return createPortal(
     // shifted right so the card chain clears the DOM text column on the left
-    <group position={[policy.mobile ? 0.3 : 1.2, 0.1, 0]}>
+    <group position={[narrow ? 0.3 : 1.2, narrow ? -0.9 : 0.1, 0]}>
       {SERVICES.map((service, i) => (
         <mesh
           key={service.id}

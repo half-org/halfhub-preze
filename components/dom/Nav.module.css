@@ -70,6 +70,13 @@
   opacity: 0.75;
 }
 
+@media (max-width: 640px) {
+  /* keep the mono row on one line: drop secondary links on small screens */
+  .hideSm {
+    display: none;
+  }
+}
+
 @media (max-width: 520px) {
   .row {
     padding-top: 16px;

@@ -2,7 +2,14 @@ import type * as THREE from 'three'
 
 export type Lang = 'cs' | 'en'
 
-export type SceneId = 'home' | 'services' | 'about' | 'contact'
+export type SceneId =
+  | 'home'
+  | 'services'
+  | 'references'
+  | 'aiready'
+  | 'about'
+  | 'cta'
+  | 'contact'
 
 export type GPUPolicy = {
   webglDisabled: boolean
@@ -34,4 +41,26 @@ export type Service = {
   color: string // per-service accent hex
   cs: { name: string; tagline: string; points: string[] }
   en: { name: string; tagline: string; points: string[] }
+}
+
+export type Reference = {
+  id: string
+  index: string // '01'..
+  color: string // client-brand accent hex
+  url: string
+  domain: string
+  assets: { desktop: string; mobile: string } // public/ paths, 1600x1000 & 780x1688 JPEG
+  cs: { name: string; tagline: string; points: string[] }
+  en: { name: string; tagline: string; points: string[] }
+}
+
+export type AuditVerdict = 'auto' | 'partial' | 'fine'
+
+export type AuditTask = {
+  id: string
+  serviceId: string // maps to SERVICES[].id for the accent color
+  verdict: AuditVerdict
+  hours: [number, number] // estimated hours/week reclaimed, low..high
+  cs: string
+  en: string
 }

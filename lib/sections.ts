@@ -8,14 +8,22 @@ import type { SceneId } from './types'
 export const SECTIONS: { id: SceneId; height: number }[] = [
   { id: 'home', height: 2.2 },
   { id: 'services', height: 5.5 },
+  { id: 'references', height: 2.6 },
+  { id: 'aiready', height: 1.5 },
   { id: 'about', height: 1.6 },
+  { id: 'cta', height: 3.2 },
   { id: 'contact', height: 1.6 },
 ]
 
 export const TOTAL_VH = SECTIONS.reduce((s, x) => s + x.height, 0)
 
-/** Width of the shader-wipe transition zone between sections, in normalized scroll. */
-export const TRANSITION_W = 0.045
+/**
+ * Width of the shader-wipe transition zone between sections, in normalized
+ * scroll. Every middle section's normalized height must exceed 2*TRANSITION_W
+ * or its incoming wipe never resolves before the outgoing one starts
+ * (shortest section today: aiready 1.5/18.2 ≈ 0.082 > 0.07).
+ */
+export const TRANSITION_W = 0.035
 
 export type SectionRange = { id: SceneId; range: [number, number] }
 

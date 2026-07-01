@@ -29,7 +29,7 @@ export function AboutSection({ lang }: { lang: Lang }) {
       <div className={styles.viewport}>
         <div className={styles.inner}>
           <p className={styles.kicker}>
-            <span aria-hidden="true">{'// 03 — '}</span>
+            <span aria-hidden="true">{'// 05 — '}</span>
             {t.kicker}
           </p>
           {/* Brand motif: first half solid, second half dissolving to outline. */}

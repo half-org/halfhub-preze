@@ -11,35 +11,69 @@ const vert = /* glsl */ `
 uniform float uTime;
 uniform float uDPR;
 uniform float uScroll;
+uniform float uVelocity;
+uniform float uStream;
+uniform float uSpread;
+uniform vec3 uColor;
+uniform vec3 uColor2;
 attribute float aSeed;
 varying float vA;
+varying vec3 vColor;
 
 void main() {
   vec3 p = position;
-  p.x += sin(uTime * 0.3 + aSeed * 6.2831) * 0.6;
-  p.y += cos(uTime * 0.23 + aSeed * 12.566) * 0.5;
-  p.y += uScroll * (1.0 + aSeed) * 1.4; // per-particle scroll parallax
+  float t = uTime;
+
+  // layered trig wander — cheap curl-ish flow, no texture reads
+  p.x += sin(t * 0.32 + aSeed * 6.2831 + p.y * 0.55) * 0.7
+       + sin(t * 0.11 + p.z * 0.8) * 0.5;
+  p.y += cos(t * 0.27 + aSeed * 12.566 + p.x * 0.42) * 0.55
+       + cos(t * 0.09 + p.x * 0.6) * 0.4;
+
+  // directional current along x, wrapped so the stream never runs out
+  float speed = uStream * (0.35 + 0.65 * fract(aSeed * 5.13));
+  p.x = mod(p.x + t * speed + uSpread, uSpread * 2.0) - uSpread;
+
+  // per-particle scroll parallax + scroll-velocity kick
+  p.y += uScroll * (1.0 + aSeed) * 1.6;
+  p.x += uVelocity * (0.3 + aSeed) * 0.5;
+
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_PointSize = (0.016 * uDPR) * (900.0 / max(length(mv.xyz), 0.001)) * (0.5 + aSeed);
-  vA = 0.2 + 0.8 * fract(aSeed * 7.31);
+
+  // two populations from one buffer: dim dust + rare bright sparks
+  float spark = step(0.84, fract(aSeed * 13.73));
+  float base = mix(0.021, 0.075, spark);
+  gl_PointSize = (base * uDPR) * (900.0 / max(length(mv.xyz), 0.001)) * (0.5 + aSeed);
+
+  // depth fog so far particles melt into the void instead of popping
+  float fog = smoothstep(15.0, 5.0, length(mv.xyz));
+  vA = mix(0.32, 1.0, spark) * (0.3 + 0.7 * fract(aSeed * 7.31)) * fog;
+  vA *= 1.0 + min(abs(uVelocity), 1.2) * 0.7;
+
+  vColor = mix(uColor, uColor2, fract(aSeed * 3.17));
   gl_Position = projectionMatrix * mv;
 }
 `
 
 const frag = /* glsl */ `
-uniform vec3 uColor;
 varying float vA;
+varying vec3 vColor;
 
 void main() {
   vec2 c = gl_PointCoord - 0.5;
-  float d = 1.0 - smoothstep(0.0, 0.5, length(c));
-  gl_FragColor = vec4(uColor, 1.0) * d * vA;
+  float l = length(c);
+  float d = 1.0 - smoothstep(0.0, 0.5, l);
+  // hot core reads as a glint on the spark population
+  float core = 1.0 - smoothstep(0.0, 0.18, l);
+  gl_FragColor = vec4(vColor + core * 0.35, 1.0) * (d * vA);
 }
 `
 
 /**
- * Cheap ambient particle field — used for the about and contact sections
- * with per-section color/density from design data.
+ * Ambient particle field for the back half of the site (aiready, about, cta,
+ * process, contact) — a duotone stream that drifts with time, rides the
+ * scroll and flares with scroll velocity. Per-section color/density/stream
+ * come from design data.
  */
 export function FieldScene({ id, scene, policy, range }: SceneProps) {
   const cfg =
@@ -68,7 +102,11 @@ export function FieldScene({ id, scene, policy, range }: SceneProps) {
         uTime: { value: 0 },
         uDPR: { value: 1 },
         uScroll: { value: 0 },
+        uVelocity: { value: 0 },
+        uStream: { value: cfg.stream },
+        uSpread: { value: cfg.spread },
         uColor: { value: new THREE.Color(cfg.color) },
+        uColor2: { value: new THREE.Color(cfg.color2) },
       },
     })
     return { geometry, material }
@@ -90,6 +128,11 @@ export function FieldScene({ id, scene, policy, range }: SceneProps) {
     const [s, e] = range
     const local = THREE.MathUtils.clamp((scrollState.progress - s) / (e - s), 0, 1)
     material.uniforms.uScroll.value = (local - 0.5) * 2
+    material.uniforms.uVelocity.value = THREE.MathUtils.clamp(
+      scrollState.velocity * 0.01,
+      -1.5,
+      1.5
+    )
   })
 
   return createPortal(

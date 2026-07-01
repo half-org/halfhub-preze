@@ -2,7 +2,7 @@
   position: relative;
 }
 
-/* Natural flow inside the 280vh room — no sticky viewport here. */
+/* Natural flow inside the 250vh room — no sticky viewport here. */
 .block {
   min-height: 100vh;
   min-height: 100svh;
@@ -12,9 +12,11 @@
   padding: clamp(76px, 11vh, 120px) clamp(20px, 4.5vw, 56px) clamp(28px, 6vh, 64px);
 }
 
+/* Sized to its content (≈1 viewport) — the room above reserves ~150vh so the
+   log can grow without pushing into the next section. */
 .auditBlock {
-  min-height: 170vh;
-  min-height: 170svh;
+  min-height: 100vh;
+  min-height: 100svh;
   justify-content: flex-start;
 }
 
@@ -99,8 +101,13 @@
   margin: 0 0 1.8rem;
 }
 
-/* Terminal frame. */
+/* Terminal frame — capped to the room the section reserves after block 1
+   (150svh minus the block padding + heading overhead), so a full selection
+   can never overflow into the next section; past the cap the body scrolls. */
 .terminal {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(150svh - 220px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 4px;
   background: rgba(2, 5, 5, 0.58);
@@ -128,7 +135,16 @@
   white-space: nowrap;
 }
 
+.termHead {
+  flex-shrink: 0;
+}
+
 .termBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2e2e2e transparent;
   padding: clamp(18px, 3vw, 34px) clamp(16px, 2.4vw, 26px) clamp(24px, 3.4vw, 40px);
 }
 
@@ -202,11 +218,16 @@
   color: #d2d2d2;
 }
 
-/* Log — one line per selected task. */
+/* Log — one line per selected task. Capped with internal scroll so a full
+   selection can never overflow the section's fixed scroll room. */
 .log {
   display: grid;
   gap: 0.5rem;
   margin-top: 1.9rem;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2e2e2e transparent;
 }
 
 .log:empty {

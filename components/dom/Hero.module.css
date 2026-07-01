@@ -37,6 +37,19 @@
   color: var(--text);
 }
 
+/* Scroll-dissolve targets — the rAF loop in Hero writes opacity/transform
+   per frame; CSS holds the resting (fully visible) state. */
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.kicker,
+.sub,
+.hint {
+  will-change: transform, opacity;
+}
+
 .sub {
   color: var(--dim);
   font-size: clamp(1rem, 1.25vw, 1.15rem);

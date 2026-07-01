@@ -9,6 +9,7 @@ export type SceneId =
   | 'aiready'
   | 'about'
   | 'cta'
+  | 'process'
   | 'contact'
 
 export type GPUPolicy = {

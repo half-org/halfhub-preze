@@ -23,6 +23,7 @@ const COMPONENTS: Record<SceneId, React.ComponentType<SceneProps>> = {
   aiready: FieldScene,
   about: FieldScene,
   cta: FieldScene,
+  process: FieldScene,
   contact: FieldScene,
 }
 

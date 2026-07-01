@@ -7,6 +7,7 @@ import { ReferencesSection } from '@/components/dom/ReferencesSection'
 import { AiReadySection } from '@/components/dom/AiReadySection'
 import { AboutSection } from '@/components/dom/AboutSection'
 import { CtaSection } from '@/components/dom/CtaSection'
+import { ProcessSection } from '@/components/dom/ProcessSection'
 import { ContactSection } from '@/components/dom/ContactSection'
 import { Footer } from '@/components/dom/Footer'
 
@@ -22,6 +23,7 @@ export function HomePage({ lang }: { lang: Lang }) {
         <AiReadySection lang={lang} />
         <AboutSection lang={lang} />
         <CtaSection lang={lang} />
+        <ProcessSection lang={lang} />
         <ContactSection lang={lang} />
       </main>
       <Footer lang={lang} />

@@ -1,0 +1,201 @@
+.section {
+  position: relative;
+}
+
+.viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  /* auto margins on .inner center it when there's room and top-align it when
+     content overflows (justify-content: center would clip the heading);
+     overflow-y lets short/landscape viewports still reach everything */
+  overflow-y: auto;
+  padding: clamp(76px, 11vh, 120px) clamp(20px, 4.5vw, 56px) clamp(28px, 6vh, 64px);
+}
+
+.inner {
+  width: 100%;
+  max-width: 1180px;
+  margin: auto;
+}
+
+/* Scroll-linked reveal targets — CSS holds the FINAL (visible) state;
+   the rAF loop in ProcessSection writes opacity/transform per frame and is
+   skipped entirely under prefers-reduced-motion. */
+.reveal {
+  will-change: transform, opacity;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.heading {
+  font-weight: 300;
+  font-size: clamp(1.8rem, 3.4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0.45em 0 0;
+}
+
+/* Second half of the heading: transparent fill, 1px stroke in the text color.
+   Unsupporting browsers simply render the solid fill. */
+.outline {
+  -webkit-text-stroke: 1px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+.timeline {
+  position: relative;
+  margin-top: clamp(36px, 7vh, 72px);
+}
+
+/* Rail through the step dots; .line draws over it as you scroll. */
+.track {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.line {
+  --draw: 1; /* final state — the rAF loop animates 0 → 1 */
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #45f0d8, #4fc8f0, #8f8aff, #ff6fb3);
+  transform: scale(var(--draw), 1);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.steps {
+  list-style: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 2.4vw, 36px);
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  position: relative;
+  padding-top: 30px;
+}
+
+/* Node on the rail — centered on the 1px track at top: 5px. */
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--step-color);
+  background: #020505;
+  box-shadow: 0 0 14px 0 var(--step-color);
+}
+
+/* Outlined number — same treatment as the services .index motif. */
+.index {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 2.6vw, 2.6rem);
+  line-height: 1;
+  color: var(--step-color);
+  -webkit-text-stroke: 1px var(--step-color);
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.name {
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0.7rem 0 0;
+}
+
+.body {
+  font-weight: 300;
+  font-size: clamp(0.88rem, 1.05vw, 0.98rem);
+  line-height: 1.6;
+  color: var(--dim);
+  margin: 0.6rem 0 0;
+}
+
+@media (max-width: 760px) {
+  .viewport {
+    padding-top: clamp(68px, 10vh, 96px);
+  }
+  .timeline {
+    margin-top: 28px;
+  }
+  /* Vertical rail down the left edge; the line draws top → bottom. */
+  .track {
+    top: 0;
+    bottom: 0;
+    left: 5px;
+    right: auto;
+    width: 1px;
+    height: auto;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .line {
+    background: linear-gradient(180deg, #45f0d8, #4fc8f0, #8f8aff, #ff6fb3);
+    transform: scale(1, var(--draw));
+    transform-origin: center top;
+  }
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .step {
+    padding-top: 0;
+    padding-left: 30px;
+  }
+  .dot {
+    top: 6px;
+    width: 11px;
+    height: 11px;
+  }
+  .index {
+    font-size: 1.5rem;
+  }
+}
+
+/* Short viewports (landscape phones, small laptops with UI chrome):
+   tighten type and spacing so the section fits without inner scrolling. */
+@media (max-height: 740px) {
+  .viewport {
+    padding-top: clamp(60px, 9vh, 84px);
+    padding-bottom: 20px;
+  }
+  .heading {
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+  }
+  .timeline {
+    margin-top: 24px;
+  }
+  .index {
+    font-size: 1.5rem;
+  }
+  .name {
+    margin-top: 0.5rem;
+  }
+  .body {
+    font-size: 0.88rem;
+    margin-top: 0.45rem;
+  }
+}

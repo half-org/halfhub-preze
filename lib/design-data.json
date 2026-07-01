@@ -18,6 +18,7 @@
       "aiready":    { "from": { "pos": [0, 0.8, 7.6],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.3, 6.8], "look": [0, 0, 0] } },
       "about":      { "from": { "pos": [0, 0.6, 7.0],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.5, 6.4], "look": [0, 0, 0] } },
       "cta":        { "from": { "pos": [0, 0.5, 7.8],  "look": [0, 0, 0] }, "to": { "pos": [0, -0.4, 6.6], "look": [0, 0, 0] } },
+      "process":    { "from": { "pos": [0.4, 0.6, 7.4], "look": [0, 0, 0] }, "to": { "pos": [-0.4, -0.3, 6.6], "look": [0, 0, 0] } },
       "contact":    { "from": { "pos": [0, 1.2, 8.0],  "look": [0, 0, 0] }, "to": { "pos": [0, 0.0, 6.4],  "look": [0, 0, 0] } }
     }
   },
@@ -50,9 +51,10 @@
     "vignette": 0.42
   },
   "field": {
-    "aiready": { "color": "#B07CFF", "count": 800, "spread": 9, "drift": 0.15 },
-    "about":   { "color": "#8F8AFF", "count": 900, "spread": 9, "drift": 0.18 },
-    "cta":     { "color": "#FF6FB3", "count": 650, "spread": 8, "drift": 0.12 },
-    "contact": { "color": "#45F0D8", "count": 700, "spread": 8, "drift": 0.12 }
+    "aiready": { "color": "#B07CFF", "color2": "#45F0D8", "count": 2600, "spread": 9, "drift": 0.15, "stream": 0.8 },
+    "about":   { "color": "#8F8AFF", "color2": "#E06CF0", "count": 2800, "spread": 9, "drift": 0.18, "stream": 0.6 },
+    "cta":     { "color": "#FF6FB3", "color2": "#B07CFF", "count": 2400, "spread": 8, "drift": 0.12, "stream": 0.7 },
+    "process": { "color": "#4FC8F0", "color2": "#8F8AFF", "count": 2400, "spread": 8, "drift": 0.14, "stream": 0.9 },
+    "contact": { "color": "#45F0D8", "color2": "#4FC8F0", "count": 2600, "spread": 8, "drift": 0.12, "stream": 0.5 }
   }
 }

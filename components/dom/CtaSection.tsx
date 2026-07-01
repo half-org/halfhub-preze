@@ -10,9 +10,9 @@ import styles from './Cta.module.css'
 const H = SECTIONS.find((s) => s.id === 'cta')!.height
 
 /**
- * CTA section — natural flow (not sticky) inside the 280vh room:
+ * CTA section — natural flow (not sticky) inside the 250vh room:
  * Block 1 (~100vh, centered) — the free-demo offer with a mailto pill.
- * Block 2 (~170vh) — the terminal automation audit.
+ * Block 2 (~100vh+, content-sized) — the terminal automation audit.
  * The pink particle field behind it is rendered by the canvas world.
  */
 export function CtaSection({ lang }: { lang: Lang }) {

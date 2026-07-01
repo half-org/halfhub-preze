@@ -116,6 +116,16 @@ export const COPY = {
         mailSubject: 'Automatizační audit — můj výběr',
       },
     },
+    process: {
+      kicker: 'Jak to probíhá',
+      heading: 'Od nápadu k provozu.',
+      steps: [
+        { index: '01', name: 'Konzultace', body: 'Zavoláme si nebo napíšete. Řeknete nám, co vás pálí; my řekneme, co s tím umíme. Do 24 hodin víte, na čem jste.' },
+        { index: '02', name: 'Demo zdarma', body: 'Postavíme klikací prototyp s testovacími daty. Osaháte si produkt dřív, než podepíšete cokoliv.' },
+        { index: '03', name: 'Vývoj', body: 'Krátké iterace, průběžné ukázky. Každý týden vidíte, jak produkt roste — žádné černé skříňky.' },
+        { index: '04', name: 'Provoz', body: 'Nasadíme, hlídáme, rozvíjíme. Produkt žije dál — a my s ním.' },
+      ],
+    },
     contact: {
       kicker: 'Kontakt',
       heading: 'Spojme se',
@@ -184,6 +194,16 @@ export const COPY = {
         verdicts: { auto: 'Automatable', partial: 'Partially automatable', fine: 'Keep this human' },
         mailSubject: 'Automation audit — my selection',
       },
+    },
+    process: {
+      kicker: 'How it works',
+      heading: 'From idea to production.',
+      steps: [
+        { index: '01', name: 'First call', body: "Call or write. Tell us what hurts; we'll tell you what we can do about it. You'll know where you stand within 24 hours." },
+        { index: '02', name: 'Free demo', body: 'We build a clickable prototype with test data. Touch the product before you sign anything.' },
+        { index: '03', name: 'Build', body: 'Short iterations, regular previews. You watch the product grow every week — no black boxes.' },
+        { index: '04', name: 'Run', body: 'We deploy, monitor and keep improving. The product keeps living — and we stay with it.' },
+      ],
     },
     contact: {
       kicker: 'Contact',

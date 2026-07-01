@@ -17,7 +17,7 @@ export function ContactSection({ lang }: { lang: Lang }) {
     >
       <div className={styles.viewport}>
         <p className={styles.kicker}>
-          <span aria-hidden="true">{'// 07 — '}</span>
+          <span aria-hidden="true">{'// 08 — '}</span>
           {t.kicker}
         </p>
         <h2 id="contact-heading" className={styles.heading}>

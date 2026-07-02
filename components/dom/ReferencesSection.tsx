@@ -33,8 +33,8 @@ export function ReferencesSection({ lang }: { lang: Lang }) {
           #references .${styles.rail} { display: none; }
         `}</style>
       </noscript>
-      <div className={styles.viewport}>
-        <header className={styles.head}>
+      <div className={styles.viewport} data-canvas-viewport="references">
+        <header className={styles.head} data-canvas-measure="references">
           <p className={styles.kicker}>
             <span aria-hidden="true">{'// 03 — '}</span>
             {t.kicker}

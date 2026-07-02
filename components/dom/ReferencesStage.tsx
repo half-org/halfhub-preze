@@ -112,6 +112,7 @@ export function ReferencesStage({ lang }: { lang: Lang }) {
             >
               <div
                 className={styles.drift}
+                data-canvas-measure="references"
                 ref={(el) => {
                   driftRefs.current[i] = el
                 }}

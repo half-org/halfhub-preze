@@ -21,8 +21,8 @@ export function ServicesSection({ lang }: { lang: Lang }) {
       className={styles.section}
       style={{ height: `${H * 100}vh` }}
     >
-      <div className={styles.viewport}>
-        <header className={styles.head}>
+      <div className={styles.viewport} data-canvas-viewport="services">
+        <header className={styles.head} data-canvas-measure="services">
           <p className={styles.kicker}>
             <span aria-hidden="true">{'// 02 — '}</span>
             {t.kicker}

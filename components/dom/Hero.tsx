@@ -129,8 +129,8 @@ export function Hero({ lang }: { lang: Lang }) {
       className={styles.section}
       style={{ height: `${H * 100}vh` }}
     >
-      <div className={styles.viewport}>
-        <div className={styles.block}>
+      <div className={styles.viewport} data-canvas-viewport="home">
+        <div className={styles.block} data-canvas-measure="home">
           <p className={styles.kicker} ref={kickerRef}>
             <span aria-hidden="true">{'// 01 — '}</span>
             {t.kicker}

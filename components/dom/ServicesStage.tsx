@@ -62,6 +62,7 @@ export function ServicesStage({ lang }: { lang: Lang }) {
             >
               <div
                 className={styles.drift}
+                data-canvas-measure="services"
                 ref={(el) => {
                   driftRefs.current[i] = el
                 }}

@@ -1,6 +1,12 @@
 import { SERVICES } from './content'
+import { SECTIONS } from './sections'
 
-const PAD = 0.07 // head/tail padding within the services section
+const PAD = 0.07 // head padding within the services section
+// The sticky text viewport releases at (H-1)/H local. Complete the deck
+// 0.4 viewport-heights earlier so the LAST card gets a settled, fully
+// pinned reading window instead of focusing while its text scrolls away.
+const H = SECTIONS.find((s) => s.id === 'services')!.height
+const END = (H - 1.4) / H
 
 /**
  * Single source of truth mapping local services-section progress (0..1)
@@ -16,7 +22,7 @@ export function serviceProgress(local: number): {
   t: number
 } {
   const n = SERVICES.length
-  const x = Math.min(Math.max((local - PAD) / (1 - 2 * PAD), 0), 1)
+  const x = Math.min(Math.max((local - PAD) / (END - PAD), 0), 1)
   const f = x * (n - 1)
   const active = Math.min(Math.max(Math.round(f), 0), n - 1)
   return { f, active, t: f - active }

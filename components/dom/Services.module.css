@@ -179,14 +179,14 @@
     padding-top: 2vh;
   }
   .index {
-    font-size: clamp(3rem, 16vw, 4.5rem);
-    margin-bottom: 1rem;
+    font-size: clamp(2.4rem, 11vw, 3.4rem);
+    margin-bottom: 0.7rem;
   }
   .name {
-    font-size: clamp(2rem, 9vw, 2.6rem);
+    font-size: clamp(1.8rem, 8vw, 2.3rem);
   }
   .points {
-    margin-top: 1.6rem;
+    margin-top: 1.2rem;
     gap: 0.55rem;
   }
   .point {
@@ -209,5 +209,45 @@
   }
   .railCount {
     margin: 0 0 0 10px;
+  }
+}
+
+/* Short viewports (landscape phones): tighten type and spacing so the card
+   text and the rail fit inside the 100svh sticky viewport without overlap. */
+@media (max-height: 540px) {
+  .viewport {
+    padding-top: 60px;
+    padding-bottom: 14px;
+  }
+  .head {
+    margin-bottom: 1vh;
+  }
+  .heading {
+    font-size: 1.05rem;
+  }
+  .card {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+  .index {
+    font-size: 1.7rem;
+    margin-bottom: 0.35rem;
+  }
+  .name {
+    font-size: 1.45rem;
+  }
+  .tagline {
+    font-size: 0.92rem;
+    margin-top: 0.4rem;
+  }
+  .points {
+    margin-top: 0.7rem;
+    gap: 0.35rem;
+  }
+  .point {
+    font-size: 10px;
+  }
+  .rail {
+    margin-top: 10px;
   }
 }

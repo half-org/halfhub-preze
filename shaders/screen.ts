@@ -122,8 +122,9 @@ void main() {
   col += uColor * border * (0.22 + uActive * 0.25 + uHover * 0.55);
 
   // presence: unfocused panels recede hard into the dark — screenshots are
-  // bright, so the linear 50% dim used by the service cards is not enough here
-  col *= 0.14 + 0.86 * pow(uActive, 1.5);
+  // bright, so the linear 50% dim used by the service cards is not enough
+  // here (the resting ghost sits behind the DOM text column on desktop)
+  col *= 0.08 + 0.92 * pow(uActive, 1.5);
   col *= 1.0 + uHover * 0.08;
 
   float alpha = mask * (0.55 + 0.45 * uActive);

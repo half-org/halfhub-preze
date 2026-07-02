@@ -2,11 +2,12 @@
 
 import * as THREE from 'three'
 import { useEffect, useMemo, useRef } from 'react'
-import { useFrame, createPortal } from '@react-three/fiber'
+import { useFrame, useThree, createPortal } from '@react-three/fiber'
 import design from '@/lib/design-data.json'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
 import { loaderState } from '@/lib/loader-state'
+import { useClearance } from '@/lib/canvas-clear'
 import type { SceneProps } from '@/lib/types'
 import {
   simVert,
@@ -73,6 +74,22 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
   const readIdx = useRef(0)
   const dragRot = useRef(0)
   const flags = useRef({ needsInit: false, stepped: false, pointerMoved: false })
+
+  // portrait: lift the mark + belt into the free zone above the
+  // bottom-anchored copy (measured via lib/canvas-clear.ts); on touch the
+  // drag rotation stays off — swipes are for scrolling, not for swiveling
+  const size = useThree((s) => s.size)
+  const portrait = size.width / size.height < 1.05
+  const clear = useClearance('home', portrait)
+  // world height at this section's resting camera distance (z ≈ 8.8)
+  const worldH = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * 8.8
+  const lift = portrait && clear ? (0.5 - (0.1 + clear.top) / 2) * worldH : 0
+  const finePointer = useMemo(
+    () =>
+      typeof matchMedia !== 'undefined' &&
+      matchMedia('(hover: hover) and (pointer: fine)').matches,
+    []
+  )
 
   // ---- GPGPU simulation resources (targets, fullscreen-tri scene, materials)
   const sim = useMemo(() => {
@@ -237,11 +254,12 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
     // group: scroll rotation + lerped pointer drag + fit-to-viewport scale
     // (the wordmark is 3.08 logo-units wide; never overflow narrow screens)
     const group = groupRef.current
-    dragRot.current += (pointerState.dragX * 2.5 - dragRot.current) * 0.07
+    dragRot.current += ((finePointer ? pointerState.dragX : 0) * 2.5 - dragRot.current) * 0.07
     const fit = Math.min(effScale, (state.viewport.width * 0.92) / 3.08)
     if (group) {
       group.rotation.y = local * hero.scrollRotate * 0.2 + dragRot.current
       group.scale.setScalar(fit)
+      group.position.y = lift
     }
     su.uPointerRadius.value = hero.pointerRadius / fit
 

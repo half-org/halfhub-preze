@@ -10,10 +10,16 @@ import { SECTION_RANGES, resolveScroll } from '@/lib/sections'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
 import { loaderState } from '@/lib/loader-state'
+import { useClearance } from '@/lib/canvas-clear'
 import type { SceneProps } from '@/lib/types'
 import { screenVert, screenFrag } from '@/shaders/screen'
 
 const VISIBLE_OFFSET = 2.4
+const RAIL_CLEAR = 0.55 // world units above the bottom edge kept for the rail
+const CAM_Z = 8.0 // mean camera distance here (design.camera.paths.references)
+// desktop plane + phone overhang, relative to cardW/cardH (see phoneX/phoneY)
+const COMP_W = 1.06
+const COMP_H = 1.12
 const MOBILE_ASPECT = 780 / 1688 // phone screenshot w/h
 // design mobileScale (0.34 of cardW) reads oversized against the desktop
 // plane at aspect 780:1688 — eased down here so the chip lands at the
@@ -40,6 +46,31 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
   const spacing = narrow ? cfg.spacing * 0.85 : cfg.spacing
   const waveAmp = policy.mobile ? 0.03 : 0.05
   const gl = useThree((s) => s.gl)
+
+  // narrow: size the panels to the visible world width and slot them into
+  // the space the measured DOM text actually leaves free (lib/canvas-clear.ts).
+  // World extents come from this section's own camera distance —
+  // state.viewport is measured at the resting camera and would run ~12% big.
+  const size = useThree((s) => s.size)
+  const clear = useClearance('references', narrow)
+  let groupPos: [number, number, number] = [1.6, -0.05, 0]
+  let groupScale = 1
+  if (narrow) {
+    const worldH = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
+    const worldW = worldH * (size.width / size.height)
+    const textBottomY = (0.5 - (clear?.bottom ?? 0.58)) * worldH
+    const margin = 0.28 // covers the ±y wobble/swing of the panel chain
+    const available = textBottomY - margin - (-worldH / 2 + RAIL_CLEAR)
+    groupScale = Math.max(
+      0.35,
+      Math.min(
+        1,
+        (worldW * 0.88) / (cfg.cardW * COMP_W),
+        available / (cfg.cardH * COMP_H)
+      )
+    )
+    groupPos = [-0.05, textBottomY - margin - (cfg.cardH / 2) * groupScale, 0]
+  }
 
   const phoneW = cfg.cardW * cfg.mobileScale * PHONE_TUNE
   const phoneH = phoneW / MOBILE_ASPECT // ≈ cardH * 0.9
@@ -288,11 +319,8 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
 
   return createPortal(
     // wide: shifted right so the panels clear the DOM text column on the
-    // left; narrow: dropped into the lower third below the stacked text
-    <group
-      position={[narrow ? 0 : 1.6, narrow ? -1.35 : -0.05, 0]}
-      scale={narrow ? 0.62 : 1}
-    >
+    // left; narrow: fitted + slotted below the measured text block
+    <group position={groupPos} scale={groupScale}>
       {REFERENCES.map((ref, i) => (
         <group
           key={ref.id}

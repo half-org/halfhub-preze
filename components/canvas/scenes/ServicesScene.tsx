@@ -10,10 +10,13 @@ import { SECTION_RANGES, resolveScroll } from '@/lib/sections'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
 import { loaderState } from '@/lib/loader-state'
+import { useClearance } from '@/lib/canvas-clear'
 import type { SceneProps } from '@/lib/types'
 import { cardVert, cardFrag } from '@/shaders/card'
 
 const VISIBLE_OFFSET = 3.2
+const RAIL_CLEAR = 0.55 // world units above the bottom edge kept for the rail
+const CAM_Z = 8.0 // this section's camera distance (design.camera.paths.services)
 
 /**
  * Services scene — 7 glassy procedural shader cards flowing through focus
@@ -32,6 +35,27 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
   const narrow = useThree((s) => s.size.width) <= 760
   const spacing = narrow ? cfg.spacing * 0.85 : cfg.spacing
   const waveAmp = policy.mobile ? 0.04 : 0.08
+
+  // narrow: size the card to the visible world width and slot it into the
+  // space the measured DOM text actually leaves free (lib/canvas-clear.ts).
+  // World extents come from this section's own camera distance —
+  // state.viewport is measured at the resting camera and would run ~12% big.
+  const size = useThree((s) => s.size)
+  const clear = useClearance('services', narrow)
+  let groupPos: [number, number, number] = [1.2, 0.1, 0]
+  let groupScale = 1
+  if (narrow) {
+    const worldH = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
+    const worldW = worldH * (size.width / size.height)
+    const textBottomY = (0.5 - (clear?.bottom ?? 0.55)) * worldH
+    const margin = 0.3 // covers the ±y wobble/swing of the card chain
+    const available = textBottomY - margin - (-worldH / 2 + RAIL_CLEAR)
+    groupScale = Math.max(
+      0.45,
+      Math.min(1, (worldW * 0.88) / cfg.cardW, available / cfg.cardH)
+    )
+    groupPos = [0, textBottomY - margin - (cfg.cardH / 2) * groupScale, 0]
+  }
 
   const geometry = useMemo(() => {
     const segX = lowTier ? 24 : 48
@@ -179,8 +203,9 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
   }, 0)
 
   return createPortal(
-    // shifted right so the card chain clears the DOM text column on the left
-    <group position={[narrow ? 0.3 : 1.2, narrow ? -0.9 : 0.1, 0]}>
+    // wide: shifted right so the card chain clears the DOM text column on the
+    // left; narrow: fitted + slotted below the measured text block
+    <group position={groupPos} scale={groupScale}>
       {SERVICES.map((service, i) => (
         <mesh
           key={service.id}

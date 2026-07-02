@@ -1,14 +1,20 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { AUDIT_TASKS } from '@/lib/audit-data'
 import { COPY } from '@/lib/content'
+import { scramble, SCRAMBLE_FPS_MS } from '@/lib/scramble'
 import { SECTIONS, SECTION_RANGES } from '@/lib/sections'
-import { scrollState } from '@/lib/scroll'
+import { scrollState, scrollToId } from '@/lib/scroll'
 import type { Lang } from '@/lib/types'
 import styles from './Hero.module.css'
 
 const H = SECTIONS.find((s) => s.id === 'home')!.height
 const RANGE = SECTION_RANGES.find((r) => r.id === 'home')!.range
+
+/** Extraction hooks — automatable time-eaters from the audit's task list. */
+const HOOKS = AUDIT_TASKS.filter((t) => t.verdict !== 'fine')
+const HOOK_MS = 4200
 
 /** Deterministic per-word variation — SSR markup must match the client. */
 const seed = (i: number) => {
@@ -28,7 +34,41 @@ export function Hero({ lang }: { lang: Lang }) {
   const wordRefs = useRef<(HTMLElement | null)[]>([])
   const kickerRef = useRef<HTMLParagraphElement | null>(null)
   const subRef = useRef<HTMLParagraphElement | null>(null)
+  const hookRef = useRef<HTMLParagraphElement | null>(null)
+  const hookTextRef = useRef<HTMLSpanElement | null>(null)
   const hintRef = useRef<HTMLParagraphElement | null>(null)
+  const [hook, setHook] = useState(0)
+
+  // rotate the extraction hook; static first question under reduced motion
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setInterval(() => setHook((i) => (i + 1) % HOOKS.length), HOOK_MS)
+    return () => window.clearInterval(id)
+  }, [])
+
+  // scramble the new question in on every rotation (12fps, lib/scramble)
+  useEffect(() => {
+    const el = hookTextRef.current
+    if (!el) return
+    const text = HOOKS[hook][lang] + t.hookSuffix
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = text
+      return
+    }
+    let intensity = 1
+    const id = window.setInterval(() => {
+      el.textContent = scramble(text, intensity)
+      intensity *= 0.78
+      if (intensity < 0.08) {
+        el.textContent = text
+        window.clearInterval(id)
+      }
+    }, SCRAMBLE_FPS_MS)
+    return () => {
+      window.clearInterval(id)
+      el.textContent = text
+    }
+  }, [hook, lang, t.hookSuffix])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -64,6 +104,12 @@ export function Hero({ lang }: { lang: Lang }) {
         const k = clamp01((p - 0.42) / 0.4)
         subRef.current.style.transform = `translate3d(0, ${(-p * 44).toFixed(2)}px, 0)`
         subRef.current.style.opacity = (1 - k * 0.8).toFixed(3)
+      }
+      if (hookRef.current) {
+        // the extraction hook stays legible the longest — it is the CTA
+        const k = clamp01((p - 0.62) / 0.35)
+        hookRef.current.style.transform = `translate3d(0, ${(-p * 36).toFixed(2)}px, 0)`
+        hookRef.current.style.opacity = (1 - k * 0.85).toFixed(3)
       }
       if (hintRef.current) {
         // the hint has done its job the moment scrolling starts
@@ -107,6 +153,26 @@ export function Hero({ lang }: { lang: Lang }) {
           </h1>
           <p className={styles.sub} ref={subRef}>
             {t.sub}
+          </p>
+          <p className={styles.hook} ref={hookRef}>
+            <button
+              type="button"
+              className={styles.hookBtn}
+              aria-label={t.hookAria}
+              onClick={() => scrollToId('audit')}
+            >
+              <span className={styles.hookMark} aria-hidden="true">
+                {'> '}
+              </span>
+              <span className={styles.hookText} aria-hidden="true" ref={hookTextRef}>
+                {HOOKS[0][lang]}
+                {t.hookSuffix}
+              </span>
+              <span className={styles.hookCta} aria-hidden="true">
+                {t.hookCta}
+                <span className={styles.hookArrow}> →</span>
+              </span>
+            </button>
           </p>
           <p className={styles.hint} ref={hintRef}>
             <span className={styles.hintLine} aria-hidden="true" />

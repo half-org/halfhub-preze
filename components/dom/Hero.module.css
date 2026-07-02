@@ -58,6 +58,63 @@
   margin: 0;
 }
 
+/* Extraction hook — a rotating "still doing this by hand?" question that
+   deep-links into the automation audit. Mono, terminal-flavored. */
+.hook {
+  margin: 2.4rem 0 0;
+  min-height: 1.5em;
+  will-change: transform, opacity;
+}
+
+.hookBtn {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35em 1em;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.hookMark {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hookText {
+  color: #cfd6d4;
+}
+
+.hookCta {
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  border-bottom: 1px solid rgba(69, 240, 216, 0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.hookArrow {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hookBtn:hover .hookCta,
+.hookBtn:focus-visible .hookCta {
+  border-color: var(--accent);
+}
+
+.hookBtn:hover .hookArrow,
+.hookBtn:focus-visible .hookArrow {
+  transform: translateX(0.3em);
+}
+
 .hint {
   display: flex;
   align-items: center;
@@ -99,7 +156,21 @@
     font-size: clamp(2.3rem, 11vw, 2.9rem);
     margin-bottom: 1rem;
   }
+  .hook {
+    margin-top: 1.8rem;
+    min-height: 3em; /* reserve two lines so rotating questions don't jump */
+  }
+  .hookBtn {
+    font-size: 12px;
+  }
   .hint {
     margin-top: 4.5vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hookCta,
+  .hookArrow {
+    transition: none;
   }
 }

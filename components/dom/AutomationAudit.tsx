@@ -131,7 +131,7 @@ export function AutomationAudit({ lang }: { lang: Lang }) {
   const { ref: sendRef, start: sendStart } = useScramble<HTMLSpanElement>(t.send)
 
   return (
-    <div className={styles.audit}>
+    <div className={styles.audit} id="audit">
       <h3 className={styles.auditHeading}>{t.heading}</h3>
 
       <div className={styles.terminal}>

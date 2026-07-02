@@ -1,12 +1,18 @@
 /**
- * GPGPU logo-particle shaders (hero scene).
+ * GPGPU "production line" hero shaders.
  *
- * Positions live in a ping-pong float texture pair; `simFrag` advances them
- * each frame (curl-noise drift + pointer repulsion + spring to baked home
- * positions), `pointsVert`/`pointsFrag` draw them as soft additive points.
+ * The HΛLF wordmark sits center-stage, permanently assembled from resident
+ * particles. A share of particles are travelers on an endless belt: they
+ * drift in from the left as loose, turbulent dust (manual chaos), get
+ * processed inside the wordmark (snap to their letter slot, light up), and
+ * exit right as crisp, laser-straight data lanes that fade out — the studio's
+ * story told by the scene itself: chaos in → HALF → order out.
  *
- * Brand motif: the wordmark is split at y = 0 — the bottom half dissolves
- * harder (more curl drift, ~40% weaker spring) than the solid top half.
+ * Everything is deterministic from (seed, time): a traveler's belt phase is
+ * `fract(seed * 13.7 + uTime / uPeriod)`, so both the sim and the points
+ * shader can evaluate the same path with the shared `belt` snippet below —
+ * no extra state textures. Positions ping-pong in one float texture; the
+ * brand's split motif keeps the wordmark's bottom half dissolving harder.
  */
 
 /** Fullscreen-triangle passthrough for the simulation passes. */
@@ -19,13 +25,116 @@ void main() {
 }
 `
 
-/** Seeds the position targets from the baked home texture (one-shot). */
+/** Seed pass — placed after beltGLSL so it can start in belt steady state. */
+
+/**
+ * Shared belt math. Declares its own uniforms — include once per shader.
+ * Segments of a traveler's phase φ:  [0, A) entry · [A, B) dwell · [B, 1) exit.
+ */
+const beltGLSL = /* glsl */ `
+uniform float uPeriod;
+uniform float uPhaseA;
+uniform float uPhaseB;
+uniform float uTravelRatio;
+uniform float uFieldW;
+uniform float uEntryScatter;
+uniform float uLanes;
+uniform float uLaneSpan;
+
+float beltTraveler(float seed) {
+  return step(fract(seed * 7.91), uTravelRatio);
+}
+
+float beltPhase(float seed, float time) {
+  return fract(seed * 13.7 + time / uPeriod);
+}
+
+/* Path target + noise/spring regime for the sim. */
+void beltDynamics(vec3 home, float seed, float time,
+                  out vec3 target, out float ampMul, out float k) {
+  float traveler = beltTraveler(seed);
+  float phi = beltPhase(seed, time);
+
+  // resident: the wordmark itself, breathing gently
+  target = home;
+  ampMul = 0.14;
+  k = 0.03;
+  if (traveler < 0.5) return;
+
+  float spawnX = -uFieldW * 1.08;
+  float exitX = uFieldW * 1.08;
+  float scatterY = (fract(seed * 5.13) - 0.5) * 2.0 * uEntryScatter;
+  float scatterZ = (fract(seed * 9.71) - 0.5) * 0.6;
+  float laneY = ((floor(fract(seed * 3.77) * uLanes) + 0.5) / uLanes) * 2.0 * uLaneSpan - uLaneSpan;
+
+  if (phi < uPhaseA) {
+    // entry: loose dust converging on its letter slot
+    float s = phi / uPhaseA;
+    target = vec3(
+      mix(spawnX, home.x, s),
+      mix(scatterY, home.y, smoothstep(0.2, 0.9, s)),
+      mix(scatterZ, home.z, smoothstep(0.4, 0.9, s))
+    );
+    ampMul = 1.0 - s * 0.8;
+    k = mix(0.012, 0.05, s);
+  } else if (phi < uPhaseB) {
+    // dwell: processed inside the wordmark
+    ampMul = 0.14;
+    k = 0.055;
+  } else {
+    // exit: slide out of the letter first, then snap into a data lane
+    float s = (phi - uPhaseB) / (1.0 - uPhaseB);
+    target = vec3(
+      mix(home.x, exitX, s),
+      mix(home.y, laneY, smoothstep(0.25, 0.65, s)),
+      mix(home.z, 0.0, smoothstep(0.25, 0.6, s))
+    );
+    ampMul = 0.04;
+    k = 0.09;
+  }
+}
+
+/* Color stage (0 chaos → 0.5 wordmark → 1 lane) + visibility for points. */
+void beltLook(float seed, float time, out float glow, out float alpha) {
+  float traveler = beltTraveler(seed);
+  float phi = beltPhase(seed, time);
+
+  glow = 0.5;
+  alpha = 1.0;
+  if (traveler < 0.5) return;
+
+  if (phi < uPhaseA) {
+    float s = phi / uPhaseA;
+    glow = s * 0.45;
+    // fade in just after the wrap so the teleport is invisible
+    alpha = smoothstep(0.0, 0.1, phi) * mix(0.4, 0.95, s);
+  } else if (phi < uPhaseB) {
+    glow = 0.5;
+  } else {
+    float s = (phi - uPhaseB) / (1.0 - uPhaseB);
+    glow = mix(0.6, 1.0, smoothstep(0.15, 0.5, s));
+    alpha = 1.0 - smoothstep(0.7, 0.98, s);
+  }
+}
+`
+
+/**
+ * Seeds the position targets at each particle's belt target for t = 0, so
+ * the loader reveals the machine already running (no initial transient).
+ */
 export const homeCopyFrag = /* glsl */ `
-uniform sampler2D tHome;
+uniform sampler2D tLogo;
 varying vec2 vUv;
 
+${beltGLSL}
+
 void main() {
-  gl_FragColor = texture2D(tHome, vUv);
+  vec4 home4 = texture2D(tLogo, vUv);
+  vec3 target;
+  float ampMul;
+  float k;
+  beltDynamics(home4.xyz, home4.w, 0.0, target, ampMul, k);
+  gl_FragColor = vec4(target, 0.0);
 }
 `
 
@@ -129,39 +238,52 @@ vec3 curlNoise(vec3 p) {
 `
 
 /**
- * Simulation step. All forces are tuned as per-frame deltas at 60fps and
- * scaled by uDelta for frame-rate independence (JS premultiplies the design
- * values into per-frame magnitudes). Alpha channel carries the seed through.
+ * Simulation step. Per-frame force magnitudes are premultiplied in JS at a
+ * 60fps base and scaled by uDelta for frame-rate independence. When a
+ * traveler's phase wraps (exit → entry) it teleports to its new spawn point
+ * while invisible (beltLook fades both wrap ends to zero).
  */
 export const simFrag = /* glsl */ `
 uniform sampler2D tPos;
-uniform sampler2D tHome;
+uniform sampler2D tLogo;
 uniform float uTime;
 uniform float uDelta;
 uniform float uNoiseFreq;
 uniform float uNoiseAmp;
-uniform float uSpring;
 uniform float uSplitDissolve;
 uniform vec3 uPointer;
 uniform float uPointerRadius;
 uniform float uPointerForce;
 varying vec2 vUv;
 
+${beltGLSL}
 ${noiseGLSL}
 
 void main() {
-  vec4 pos4 = texture2D(tPos, vUv);
-  vec4 home4 = texture2D(tHome, vUv);
-  vec3 pos = pos4.xyz;
+  vec3 pos = texture2D(tPos, vUv).xyz;
+  vec4 home4 = texture2D(tLogo, vUv);
   vec3 home = home4.xyz;
   float seed = home4.w;
 
-  // brand motif: the bottom half drifts/dissolves harder than the top
-  float bottom = step(home.y, 0.0);
-  float dissolve = 1.0 + bottom * uSplitDissolve;
+  vec3 target;
+  float ampMul;
+  float k;
+  beltDynamics(home, seed, uTime, target, ampMul, k);
 
-  // organic curl-noise drift
-  vec3 vel = curlNoise(pos * uNoiseFreq + uTime * 0.05) * uNoiseAmp * dissolve;
+  // teleport across the wrap seam instead of streaking backwards
+  if (beltTraveler(seed) > 0.5) {
+    float phiNow = beltPhase(seed, uTime);
+    float phiPrev = beltPhase(seed, uTime - uDelta);
+    if (phiNow < phiPrev) pos = target;
+  }
+
+  // brand motif: the wordmark's bottom half drifts/dissolves harder
+  float bottom = step(home.y, 0.0);
+  float nearHome = 1.0 - smoothstep(0.2, 0.6, length(pos - home));
+  ampMul *= 1.0 + bottom * nearHome * uSplitDissolve;
+  k *= 1.0 - bottom * nearHome * 0.4;
+
+  vec3 vel = curlNoise(pos * uNoiseFreq + uTime * 0.05) * uNoiseAmp * ampMul;
 
   // pointer repulsion (uPointer is in logo-local space, on the z=0 plane)
   vec3 toPointer = pos - uPointer;
@@ -169,62 +291,84 @@ void main() {
   float falloff = 1.0 - smoothstep(0.0, uPointerRadius, d);
   vel += (toPointer / max(d, 1e-4)) * falloff * falloff * uPointerForce;
 
-  // spring back to the baked wordmark, ~40% weaker on the dissolving half
-  vel += (home - pos) * uSpring * (1.0 - bottom * 0.4);
+  vel += (target - pos) * k;
 
   float dt = clamp(uDelta * 60.0, 0.25, 2.0);
-  gl_FragColor = vec4(pos + vel * dt, seed);
+  gl_FragColor = vec4(pos + vel * dt, 0.0);
 }
 `
 
 /**
  * Points vertex shader. `position` is a (u, v, 0) lookup into the sim
- * texture. Color mix factor comes from per-frame displacement (speed) plus
- * a seeded breathing pulse; bottom half reads slightly dimmer.
+ * texture; seed and the wordmark home come from tLogo. Stage (chaos →
+ * wordmark → lane) drives size, alpha and the color ramp.
  */
 export const pointsVert = /* glsl */ `
 uniform sampler2D tPos;
 uniform sampler2D tPrev;
+uniform sampler2D tLogo;
 uniform float uDPR;
 uniform float uSize;
 uniform float uTime;
+uniform float uSimTime;
 uniform float uPulseSpeed;
 varying float vMix;
 varying float vAlpha;
+varying float vGlow;
+
+${beltGLSL}
 
 void main() {
-  vec4 cur = texture2D(tPos, position.xy);
-  vec4 prv = texture2D(tPrev, position.xy);
-  float seed = cur.w;
+  vec3 cur = texture2D(tPos, position.xy).xyz;
+  vec3 prv = texture2D(tPrev, position.xy).xyz;
+  vec4 home4 = texture2D(tLogo, position.xy);
+  float seed = home4.w;
 
-  float speed = length(cur.xyz - prv.xyz);
+  float glow;
+  float alpha;
+  beltLook(seed, uSimTime, glow, alpha);
+  vGlow = glow;
+
+  float speed = length(cur - prv);
   float pulse = 0.5 + 0.5 * sin(uTime * uPulseSpeed * 6.2831 + seed * 6.2831);
 
-  vec4 mvPosition = modelViewMatrix * vec4(cur.xyz, 1.0);
+  vec4 mvPosition = modelViewMatrix * vec4(cur, 1.0);
   float size = (uSize * uDPR) * (900.0 / max(-mvPosition.z, 0.001));
+  // chaos reads soft and airy, the lanes fine and precise
+  size *= mix(1.15, 1.0, smoothstep(0.1, 0.5, glow));
+  size *= mix(1.0, 0.85, smoothstep(0.55, 1.0, glow));
   gl_PointSize = clamp(size * (0.8 + 0.4 * pulse) * (0.6 + 0.8 * fract(seed * 5.71)), 1.0, 24.0);
 
   vMix = clamp(speed * 60.0, 0.0, 1.0) * 0.85 + pulse * 0.15;
 
+  // the wordmark's bottom half reads slightly dimmer (split motif)
   float bottom = 1.0 - smoothstep(-0.04, 0.04, cur.y);
-  vAlpha = (1.0 - bottom * 0.35) * (0.55 + 0.45 * fract(seed * 9.13));
+  float logoZone = smoothstep(0.3, 0.5, glow) * (1.0 - smoothstep(0.55, 0.8, glow));
+  vAlpha = alpha * (1.0 - bottom * logoZone * 0.35) * (0.55 + 0.45 * fract(seed * 9.13));
 
   gl_Position = projectionMatrix * mvPosition;
 }
 `
 
-/** Soft round point, accent → white by activity, premultiplied additive. */
+/** Soft round point; dust → accent → bright lane, white flash by activity. */
 export const pointsFrag = /* glsl */ `
+uniform vec3 uColorChaos;
 uniform vec3 uColor;
+uniform vec3 uColorLane;
 uniform vec3 uColorHot;
 uniform float uOpacity;
 varying float vMix;
 varying float vAlpha;
+varying float vGlow;
 
 void main() {
   vec2 c = gl_PointCoord - 0.5;
   float disc = 1.0 - smoothstep(0.08, 0.5, length(c));
-  vec3 color = mix(uColor, uColorHot, vMix);
+  vec3 color = mix(uColorChaos, uColor, smoothstep(0.08, 0.48, vGlow));
+  color = mix(color, uColorLane, smoothstep(0.55, 1.0, vGlow));
+  color = mix(color, uColorHot, vMix * (0.3 + 0.5 * vGlow));
+  // the outgoing data lanes glow a touch hotter than the wordmark
+  color *= 1.0 + smoothstep(0.6, 1.0, vGlow) * 0.5;
   gl_FragColor = vec4(color, 1.0) * disc * vAlpha * uOpacity;
 }
 `

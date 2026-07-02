@@ -19,7 +19,7 @@ import {
 const hero = design.hero
 
 /** Random box cloud roughly matching the wordmark extents (fetch fallback). */
-function makeFallbackHome(n: number): Float32Array {
+function makeFallbackLogo(n: number): Float32Array {
   const data = new Float32Array(n * n * 4)
   for (let i = 0; i < n * n; i++) {
     data[i * 4 + 0] = (Math.random() - 0.5) * 3.1
@@ -30,7 +30,7 @@ function makeFallbackHome(n: number): Float32Array {
   return data
 }
 
-function makeHomeTexture(data: Float32Array, n: number): THREE.DataTexture {
+function makeDataTexture(data: Float32Array, n: number): THREE.DataTexture {
   const tex = new THREE.DataTexture(data, n, n, THREE.RGBAFormat, THREE.FloatType)
   tex.minFilter = THREE.NearestFilter
   tex.magFilter = THREE.NearestFilter
@@ -39,12 +39,30 @@ function makeHomeTexture(data: Float32Array, n: number): THREE.DataTexture {
   return tex
 }
 
+/** Belt uniforms shared by the sim and points materials (see beltGLSL). */
+function beltUniforms(mobile: boolean) {
+  return {
+    uPeriod: { value: hero.beltPeriod },
+    uPhaseA: { value: hero.phaseA },
+    uPhaseB: { value: hero.phaseB },
+    // mobile keeps more residents so the wordmark stays dense at 128²
+    uTravelRatio: { value: hero.travelRatio * (mobile ? 0.75 : 1) },
+    uFieldW: { value: 1.7 },
+    uEntryScatter: { value: hero.entryScatter },
+    uLanes: { value: hero.laneCount },
+    uLaneSpan: { value: hero.laneSpan },
+  }
+}
+
 /**
- * The signature hero: the HΛLF wordmark formed from GPGPU particles.
- * Ping-pong float-texture simulation (curl drift + pointer repulsion +
- * spring to baked home positions); the bottom half dissolves harder than
- * the top — the brand "half" motif. Runs at useFrame priority 0 and only
- * renders to its own sim targets; World (priority 1) renders to screen.
+ * The hero "production line": the HΛLF wordmark permanently assembled from
+ * resident GPGPU particles, while traveler particles ride an endless belt —
+ * turbulent dust in from the left, processed inside the wordmark, out to the
+ * right as crisp data lanes. Chaos in → HALF → order out.
+ *
+ * Ping-pong float-texture sim at useFrame priority 0; World (priority 1)
+ * renders to screen. Pointer repels particles (tactile); scroll rotates and
+ * finally fades the system.
  */
 export function HeroScene({ scene, policy, range }: SceneProps) {
   const N = policy.particleTexSize
@@ -83,17 +101,16 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
       depthTest: false,
       depthWrite: false,
       uniforms: {
+        ...beltUniforms(policy.mobile),
         tPos: { value: null },
-        tHome: { value: null },
+        tLogo: { value: null },
         uTime: { value: 0 },
         uDelta: { value: 1 / 60 },
         uNoiseFreq: { value: hero.noiseFreq },
         // design values premultiplied into per-frame magnitudes (60fps base)
         uNoiseAmp: { value: hero.noiseAmp * 0.02 * (policy.mobile ? 0.8 : 1) },
-        uSpring: { value: 0.02 },
         uSplitDissolve: { value: hero.splitDissolve },
         uPointer: { value: new THREE.Vector3(0, 0, 1000) },
-        // pointer radius is authored in world units → convert to logo-local
         uPointerRadius: { value: hero.pointerRadius / effScale },
         uPointerForce: { value: hero.pointerForce * 0.05 },
       },
@@ -104,7 +121,7 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
       fragmentShader: homeCopyFrag,
       depthTest: false,
       depthWrite: false,
-      uniforms: { tHome: { value: null } },
+      uniforms: { ...beltUniforms(policy.mobile), tLogo: { value: null } },
     })
 
     const mesh = new THREE.Mesh(triGeo, simMat)
@@ -135,30 +152,37 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
       depthTest: false,
       blending: THREE.AdditiveBlending,
       uniforms: {
+        ...beltUniforms(policy.mobile),
         tPos: { value: null },
         tPrev: { value: null },
+        tLogo: { value: null },
         uDPR: { value: 1 },
         uSize: { value: hero.particleSize },
         uTime: { value: 0 },
+        uSimTime: { value: 0 },
         uPulseSpeed: { value: hero.pulseSpeed },
+        uColorChaos: { value: new THREE.Color('#7C8A86') },
         uColor: { value: new THREE.Color('#45F0D8') },
+        uColorLane: { value: new THREE.Color('#B9FFF2') },
         uColorHot: { value: new THREE.Color('#FFFFFF') },
         uOpacity: { value: 1 },
       },
     })
     return { geometry, material }
-  }, [N])
+  }, [N, policy.mobile])
 
-  // ---- load the baked home positions (GPU-tier-sized bin)
+  // ---- load the baked wordmark positions (GPU-tier-sized bin)
   useEffect(() => {
     let disposed = false
     let tex: THREE.DataTexture | null = null
 
     const apply = (data: Float32Array) => {
       if (disposed) return
-      tex = makeHomeTexture(data, N)
-      sim.simMat.uniforms.tHome.value = tex
-      sim.copyMat.uniforms.tHome.value = tex
+      tex?.dispose()
+      tex = makeDataTexture(data, N)
+      sim.simMat.uniforms.tLogo.value = tex
+      sim.copyMat.uniforms.tLogo.value = tex
+      points.material.uniforms.tLogo.value = tex
       flags.current.needsInit = true
     }
 
@@ -171,15 +195,16 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
         if (buf.byteLength !== N * N * 16) throw new Error('bad bin size')
         apply(new Float32Array(buf))
       })
-      .catch(() => apply(makeFallbackHome(N)))
+      .catch(() => apply(makeFallbackLogo(N)))
 
     return () => {
       disposed = true
       tex?.dispose()
-      sim.simMat.uniforms.tHome.value = null
-      sim.copyMat.uniforms.tHome.value = null
+      sim.simMat.uniforms.tLogo.value = null
+      sim.copyMat.uniforms.tLogo.value = null
+      points.material.uniforms.tLogo.value = null
     }
-  }, [N, sim])
+  }, [N, sim, points])
 
   // ---- dispose GPU resources
   useEffect(() => {
@@ -220,6 +245,12 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
     }
     su.uPointerRadius.value = hero.pointerRadius / fit
 
+    // the belt spans the visible viewport in logo-local units
+    const fieldW = ((state.viewport.width / 2) / fit) * 1.02
+    su.uFieldW.value = fieldW
+    pu.uFieldW.value = fieldW
+    sim.copyMat.uniforms.uFieldW.value = fieldW
+
     // fade the particles out near the end of the hero section
     pu.uOpacity.value = 1 - THREE.MathUtils.smoothstep(local, 0.85, 1)
     if (pointsRef.current) pointsRef.current.visible = pu.uOpacity.value > 0.001
@@ -243,9 +274,10 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
       }
     }
 
-    if (!su.tHome.value) return // home positions still downloading
+    if (!su.tLogo.value) return // wordmark positions still downloading
 
-    // seed both targets from the home texture once
+    // seed both targets from the wordmark texture once — the loader reveals
+    // the assembled logo, then the travelers peel off ("the machine starts")
     if (flags.current.needsInit) {
       sim.mesh.material = sim.copyMat
       for (const target of sim.targets) {
@@ -278,6 +310,7 @@ export function HeroScene({ scene, policy, range }: SceneProps) {
     pu.tPrev.value = read.texture
     pu.uDPR.value = state.viewport.dpr
     pu.uTime.value = su.uTime.value
+    pu.uSimTime.value = su.uTime.value // belt stages must match the sim exactly
 
     if (!flags.current.stepped) {
       flags.current.stepped = true

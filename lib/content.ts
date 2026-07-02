@@ -67,6 +67,9 @@ export const COPY = {
       headline: 'Druhá polovina vašeho nápadu.',
       sub: 'Weby, aplikace a AI integrace. Od první konzultace po nasazení a provoz.',
       scrollHint: 'Scrollujte',
+      hookSuffix: ' — pořád ručně?',
+      hookCta: 'Zjistit v auditu',
+      hookAria: 'Co vám žere čas? Přejít na automatizační audit.',
     },
     services: { kicker: 'Služby', heading: 'Co stavíme' },
     references: {
@@ -146,6 +149,9 @@ export const COPY = {
       headline: 'The other half of your idea.',
       sub: 'Websites, apps and AI integration. From first call to production.',
       scrollHint: 'Scroll',
+      hookSuffix: ' — still done by hand?',
+      hookCta: 'See it in the audit',
+      hookAria: 'What eats your time? Jump to the automation audit.',
     },
     services: { kicker: 'Services', heading: 'What we build' },
     references: {

@@ -3,7 +3,7 @@
 import { COPY } from '@/lib/content'
 import { SECTIONS } from '@/lib/sections'
 import type { Lang } from '@/lib/types'
-import { AutomationAudit } from './AutomationAudit'
+import { AutomationWizard } from './AutomationWizard'
 import { useScramble } from './useScramble'
 import styles from './Cta.module.css'
 
@@ -12,7 +12,7 @@ const H = SECTIONS.find((s) => s.id === 'cta')!.height
 /**
  * CTA section — natural flow (not sticky) inside the 250vh room:
  * Block 1 (~100vh, centered) — the free-demo offer with a mailto pill.
- * Block 2 (~100vh+, content-sized) — the terminal automation audit.
+ * Block 2 (~100vh+, content-sized) — the AI automation-map wizard.
  * The pink particle field behind it is rendered by the canvas world.
  */
 export function CtaSection({ lang }: { lang: Lang }) {
@@ -50,7 +50,7 @@ export function CtaSection({ lang }: { lang: Lang }) {
       </div>
 
       <div className={`${styles.block} ${styles.auditBlock}`}>
-        <AutomationAudit lang={lang} />
+        <AutomationWizard lang={lang} />
       </div>
     </section>
   )

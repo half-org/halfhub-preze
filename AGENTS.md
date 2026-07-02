@@ -11,7 +11,7 @@ Presentational website for **HALF**, a software studio (webs, web/mobile/desktop
 **Business goal, in priority order:**
 1. Show off — the site itself is the portfolio piece (immersive WebGL, awwwards-style).
 2. Explain what HALF builds.
-3. **Extract from visitors what they do manually that HALF could automate.** Clients usually don't know what to ask for — the site must help them discover it. This drives: the hero's chaos→order metaphor and rotating "— pořád ručně?" hooks, the automation-audit terminal (section 06), and the free-demo offer. When adding features, prefer ones that serve this extraction goal.
+3. **Extract from visitors what they do manually that HALF could automate.** Clients usually don't know what to ask for — the site must help them discover it. This drives: the hero's chaos→order metaphor and rotating "— pořád ručně?" hooks, the AI automation-map wizard (section 06), and the free-demo offer. When adding features, prefer ones that serve this extraction goal.
 
 # Architecture map
 
@@ -31,13 +31,13 @@ DOM hero (`components/dom/Hero.tsx`): scroll-driven per-word headline dissolve +
 
 # Copy rules
 
-- Every user-facing string lives in `lib/content.ts` (or `lib/audit-data.ts`) with **both `cs` and `en`** variants.
+- Every user-facing string lives in `lib/content.ts` (or `lib/audit-data.ts` / `lib/wizard-data.ts`) with **both `cs` and `en`** variants.
 - Never invent factual claims (client counts, savings, deadlines). Derive from existing approved copy, or propose new copy to the owner for approval before shipping.
 - Voice: short, confident, no fluff; mono-font kickers; the "half" split motif (solid/outline headings via `splitHalf`).
 
 # Gotchas
 
-- Section rooms are fixed heights — natural-flow content (CTA section) must never grow past its room. The audit terminal is height-capped with an internal scroll for exactly this; verify worst case (all 16 chips selected) after touching it.
+- Section rooms are fixed heights — natural-flow content (CTA section) must never grow past its room. The wizard terminal is height-capped with an internal scroll for exactly this; verify worst case (step 3 with all 7 symptoms selected) after touching it. The wizard result is rule-based (`lib/wizard-data.ts buildPlan`) — a future AI backend replaces that function, not the component.
 - Anything rendered on the server must be deterministic (no `Math.random` in render paths — seeds via index hashes, see `Hero.tsx` `seed()`).
 - Per-frame work goes through refs + direct style/uniform writes; `setState` only on discrete changes (active index, etc.).
 - `useFrame` priorities: HeroScene sim runs at 0, World renders at 1 and owns the screen output.

@@ -187,94 +187,7 @@
   margin: 0.9rem 0 0;
 }
 
-/* Task chips. */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 1.7rem;
-}
-
-.chip {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  text-align: left;
-  padding: 0.62em 0.95em;
-  background: transparent;
-  border: 1px solid #2e2e2e;
-  border-radius: 3px;
-  color: #9c9c9c;
-  cursor: pointer;
-  transition:
-    color 0.25s ease,
-    border-color 0.25s ease,
-    background-color 0.25s ease;
-}
-
-.chip:hover {
-  border-color: #565656;
-  color: #d2d2d2;
-}
-
-/* Log — one line per selected task. Capped with internal scroll so a full
-   selection can never overflow the section's fixed scroll room. */
-.log {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 1.9rem;
-  max-height: 300px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #2e2e2e transparent;
-}
-
-.log:empty {
-  display: none;
-}
-
-.logLine {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-  color: #bdbdbd;
-  margin: 0;
-}
-
-.logMark {
-  font-weight: 700;
-}
-
-.logTag {
-  color: #9c9c9c; /* ≥4.5:1 on #000 (WCAG AA) */
-}
-
-.scanLine {
-  color: var(--dim);
-  animation: flicker 0.25s steps(2, end) infinite;
-}
-
-@keyframes flicker {
-  50% {
-    opacity: 0.35;
-  }
-}
-
 /* Running total + send. */
-.empty {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--dim);
-  margin: 2.1rem 0 0;
-}
-
-.result {
-  margin-top: 2.1rem;
-}
-
 .total {
   display: flex;
   align-items: baseline;
@@ -321,34 +234,16 @@
   .block {
     padding-top: clamp(68px, 10vh, 96px);
   }
-  .chips {
-    gap: 8px;
-    margin-top: 1.3rem;
-  }
-  .chip {
-    flex: 1 1 calc(50% - 4px);
-    font-size: 11px;
-    padding: 0.5em 0.7em;
-  }
-  .log {
-    gap: 0.4rem;
-    margin-top: 1.4rem;
-  }
-  .result {
-    margin-top: 1.5rem;
-  }
   .totalNumber {
     font-size: clamp(2.3rem, 12vw, 3.2rem);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor,
-  .scanLine {
+  .cursor {
     animation: none;
   }
   .arrow,
-  .chip,
   .ctaBtn {
     transition: none;
   }

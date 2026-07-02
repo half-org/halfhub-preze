@@ -1,0 +1,387 @@
+/* AI automation-map wizard — extends the terminal chrome from Cta.module.css.
+   Mobile first: big tap targets, one column, minimal typing. */
+
+/* Step progress — labeled segments under the terminal head. */
+.progress {
+  display: flex;
+  gap: 6px;
+  padding: 10px clamp(16px, 2.4vw, 26px) 0;
+  flex-shrink: 0;
+}
+
+.progressSeg {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #6f6f6f;
+  padding-top: 7px;
+  border-top: 2px solid #2a2a2a;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.progressOn {
+  color: var(--accent);
+  border-top-color: var(--accent);
+}
+
+/* Step container — gentle rise on mount (CSS holds the final state under
+   prefers-reduced-motion via the media block below). */
+.step {
+  animation: stepIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes stepIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.prompt {
+  margin-top: 2rem;
+}
+
+.promptFirst {
+  margin-top: 0;
+}
+
+/* Big clickable options — the whole flow is answerable by taps. */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 1.1rem;
+}
+
+.option {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 0.95em 1.05em;
+  background: transparent;
+  border: 1px solid #2e2e2e;
+  border-radius: 3px;
+  color: #9c9c9c;
+  cursor: pointer;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.option:hover {
+  border-color: #565656;
+  color: #d2d2d2;
+}
+
+.optionOn {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(69, 240, 216, 0.08);
+}
+
+/* Free-text morning note — the one optional typing field. */
+.note {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.9em 1em;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #2e2e2e;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+  resize: vertical;
+  min-height: 4.6em;
+}
+
+.note::placeholder {
+  color: #6f6f6f;
+}
+
+.note:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Step navigation. */
+.nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 1.6rem;
+  margin-top: 2.4rem;
+}
+
+.nextBtn {
+  margin-top: 0;
+  padding: 0.85em 1.9em;
+}
+
+.nextBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.navHint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #8f8f8f; /* ≥4.5:1 on #000 (WCAG AA) */
+}
+
+.backBtn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9c9c9c;
+  background: none;
+  border: none;
+  padding: 0.6em 0;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.backBtn:hover,
+.backBtn:focus-visible {
+  color: var(--text);
+}
+
+/* Result step. */
+.analyzing {
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  margin: 0;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.summary {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9c9c9c;
+  margin: 0.9rem 0 0;
+}
+
+.total {
+  margin-top: 1.6rem;
+}
+
+.plan {
+  display: grid;
+  gap: 12px;
+  margin-top: 1.8rem;
+}
+
+.card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 16px clamp(14px, 2vw, 22px) 14px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.cardName {
+  font-weight: 500;
+  font-size: clamp(1.02rem, 1.4vw, 1.15rem);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0;
+}
+
+.cardHours {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.cardDesc {
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #bdbdbd;
+  max-width: 52em;
+  margin: 0.55rem 0 0;
+}
+
+.cardTag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9c9c9c;
+  border: 1px solid #2e2e2e;
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  margin-top: 0.8rem;
+}
+
+/* Locked tail of the map — blurred teaser behind the e-mail gate. */
+.locked {
+  position: relative;
+}
+
+.lockedList {
+  display: grid;
+  gap: 12px;
+  filter: blur(7px);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lockedNote {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  color: var(--text);
+  padding: 0 18px;
+  margin: 0;
+}
+
+/* E-mail gate. */
+.gate {
+  margin-top: 2.2rem;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 1.1rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.95em 1.05em;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #2e2e2e;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.input::placeholder {
+  color: #6f6f6f;
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.sendOff {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sentNote {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  color: var(--accent);
+  max-width: 46em;
+  margin: 0.9rem 0 0;
+}
+
+/* Secondary CTA — quiet mono link under the gate. */
+.callLink {
+  display: inline-block;
+  margin-top: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text);
+  text-decoration: none;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #333;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.callLink:hover,
+.callLink:focus-visible {
+  color: var(--accent);
+  border-color: currentColor;
+}
+
+@media (max-width: 760px) {
+  .optionGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .option {
+    font-size: 11px;
+    padding: 0.9em 0.8em;
+  }
+  .form {
+    grid-template-columns: 1fr;
+  }
+  .nav {
+    margin-top: 1.8rem;
+  }
+}
+
+@media (max-width: 430px) {
+  /* symptom labels are long — single column keeps them tappable */
+  .optionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    animation: none;
+  }
+  .analyzing {
+    animation: none;
+  }
+  .progressSeg,
+  .option,
+  .backBtn,
+  .callLink {
+    transition: none;
+  }
+}

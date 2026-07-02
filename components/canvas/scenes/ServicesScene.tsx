@@ -6,7 +6,7 @@ import { useFrame, useThree, createPortal } from '@react-three/fiber'
 import design from '@/lib/design-data.json'
 import { SERVICES } from '@/lib/content'
 import { serviceProgress } from '@/lib/services-progress'
-import { SECTION_RANGES, resolveScroll } from '@/lib/sections'
+import { SECTIONS, SECTION_RANGES, TOTAL_VH, resolveScroll } from '@/lib/sections'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
 import { loaderState } from '@/lib/loader-state'
@@ -17,6 +17,18 @@ import { cardVert, cardFrag } from '@/shaders/card'
 const VISIBLE_OFFSET = 3.2
 const RAIL_CLEAR = 0.55 // world units above the bottom edge kept for the rail
 const CAM_Z = 8.0 // this section's camera distance (design.camera.paths.services)
+const WORLD_H = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
+// The sticky DOM viewport releases at scrollY = (S + H - 1) viewport-heights
+// (S = section top, H = section height, both in vh units). Progress space is
+// scrollY / ((TOTAL_VH - 1) viewports) — NOT the same scale as section-local
+// progress — so the release point and the ride-up slope are derived here in
+// progress units. Past release the deck rides up with the departing section
+// instead of staying glued to the screen.
+const SEC_I = SECTIONS.findIndex((s) => s.id === 'services')
+const SEC_H = SECTIONS[SEC_I].height
+const SEC_TOP = SECTIONS.slice(0, SEC_I).reduce((a, s) => a + s.height, 0)
+const P_RELEASE = (SEC_TOP + SEC_H - 1) / (TOTAL_VH - 1)
+const LIFT = (TOTAL_VH - 1) * WORLD_H // world units per unit of progress
 
 /**
  * Services scene — 7 glassy procedural shader cards flowing through focus
@@ -45,11 +57,10 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
   let groupPos: [number, number, number] = [1.2, 0.1, 0]
   let groupScale = 1
   if (narrow) {
-    const worldH = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
-    const worldW = worldH * (size.width / size.height)
-    const textBottomY = (0.5 - (clear?.bottom ?? 0.55)) * worldH
+    const worldW = WORLD_H * (size.width / size.height)
+    const textBottomY = (0.5 - (clear?.bottom ?? 0.55)) * WORLD_H
     const margin = 0.3 // covers the ±y wobble/swing of the card chain
-    const available = textBottomY - margin - (-worldH / 2 + RAIL_CLEAR)
+    const available = textBottomY - margin - (-WORLD_H / 2 + RAIL_CLEAR)
     groupScale = Math.max(
       0.45,
       Math.min(1, (worldW * 0.88) / cfg.cardW, available / cfg.cardH)
@@ -70,7 +81,7 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
           new THREE.ShaderMaterial({
             vertexShader: cardVert,
             // per-service pictogram variant, simplified on weak GPUs
-            fragmentShader: cardFrag(i, detail),
+            fragmentShader: cardFrag(service.id, detail),
             transparent: true,
             depthWrite: false,
             uniforms: {
@@ -90,6 +101,7 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
     [lowTier, detail, waveAmp, cfg]
   )
 
+  const groupRef = useRef<THREE.Group>(null)
   const meshRefs = useRef<(THREE.Mesh | null)[]>([])
   const hoverTargets = useRef<number[]>(SERVICES.map(() => 0))
   const raycaster = useMemo(() => new THREE.Raycaster(), [])
@@ -145,6 +157,14 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
     // f is already smooth (Lenis) — no extra lerp on layout
     const { f } = serviceProgress(local)
     const wobble = THREE.MathUtils.clamp(scrollState.velocity * 0.0003, -0.2, 0.2)
+
+    // once the sticky text releases, anchor the deck to the departing
+    // section (1 viewport of scroll ≈ WORLD_H world units up) so the focused
+    // card exits with its text instead of following the screen
+    if (groupRef.current) {
+      groupRef.current.position.y =
+        groupPos[1] + Math.max(0, scrollState.progress - P_RELEASE) * LIFT
+    }
 
     visibleMeshes.length = 0
     for (let i = 0; i < SERVICES.length; i++) {
@@ -205,7 +225,7 @@ export function ServicesScene({ id, scene, policy, range }: SceneProps) {
   return createPortal(
     // wide: shifted right so the card chain clears the DOM text column on the
     // left; narrow: fitted + slotted below the measured text block
-    <group position={groupPos} scale={groupScale}>
+    <group ref={groupRef} position={groupPos} scale={groupScale}>
       {SERVICES.map((service, i) => (
         <mesh
           key={service.id}

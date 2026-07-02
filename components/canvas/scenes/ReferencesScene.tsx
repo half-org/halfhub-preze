@@ -6,7 +6,7 @@ import { useFrame, useThree, createPortal } from '@react-three/fiber'
 import design from '@/lib/design-data.json'
 import { REFERENCES } from '@/lib/content'
 import { refsProgress } from '@/lib/refs-progress'
-import { SECTION_RANGES, resolveScroll } from '@/lib/sections'
+import { SECTIONS, SECTION_RANGES, TOTAL_VH, resolveScroll } from '@/lib/sections'
 import { scrollState } from '@/lib/scroll'
 import { pointerState } from '@/lib/pointer'
 import { loaderState } from '@/lib/loader-state'
@@ -17,6 +17,14 @@ import { screenVert, screenFrag } from '@/shaders/screen'
 const VISIBLE_OFFSET = 2.4
 const RAIL_CLEAR = 0.55 // world units above the bottom edge kept for the rail
 const CAM_Z = 8.0 // mean camera distance here (design.camera.paths.references)
+const WORLD_H = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
+// Sticky release + ride-up slope in progress space — see the twin comment in
+// ServicesScene.tsx (progress units differ from section-local by D/(D-W)).
+const SEC_I = SECTIONS.findIndex((s) => s.id === 'references')
+const SEC_H = SECTIONS[SEC_I].height
+const SEC_TOP = SECTIONS.slice(0, SEC_I).reduce((a, s) => a + s.height, 0)
+const P_RELEASE = (SEC_TOP + SEC_H - 1) / (TOTAL_VH - 1)
+const LIFT = (TOTAL_VH - 1) * WORLD_H // world units per unit of progress
 // desktop plane + phone overhang, relative to cardW/cardH (see phoneX/phoneY)
 const COMP_W = 1.06
 const COMP_H = 1.12
@@ -56,11 +64,10 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
   let groupPos: [number, number, number] = [1.6, -0.05, 0]
   let groupScale = 1
   if (narrow) {
-    const worldH = 2 * Math.tan((design.camera.fov * Math.PI) / 360) * CAM_Z
-    const worldW = worldH * (size.width / size.height)
-    const textBottomY = (0.5 - (clear?.bottom ?? 0.58)) * worldH
+    const worldW = WORLD_H * (size.width / size.height)
+    const textBottomY = (0.5 - (clear?.bottom ?? 0.58)) * WORLD_H
     const margin = 0.28 // covers the ±y wobble/swing of the panel chain
-    const available = textBottomY - margin - (-worldH / 2 + RAIL_CLEAR)
+    const available = textBottomY - margin - (-WORLD_H / 2 + RAIL_CLEAR)
     groupScale = Math.max(
       0.35,
       Math.min(
@@ -118,6 +125,7 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
     [lowTier, waveAmp, cfg]
   )
 
+  const rootRef = useRef<THREE.Group>(null)
   const groupRefs = useRef<(THREE.Group | null)[]>([])
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]) // flat, matches materials
   const hoverTargets = useRef<number[]>(REFERENCES.map(() => 0))
@@ -251,6 +259,14 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
     const { f } = refsProgress(local)
     const wobble = THREE.MathUtils.clamp(scrollState.velocity * 0.0003, -0.2, 0.2)
 
+    // once the sticky text releases, anchor the deck to the departing
+    // section (1 viewport of scroll ≈ WORLD_H world units up) so the focused
+    // panel exits with its text instead of following the screen
+    if (rootRef.current) {
+      rootRef.current.position.y =
+        groupPos[1] + Math.max(0, scrollState.progress - P_RELEASE) * LIFT
+    }
+
     visibleMeshes.length = 0
     for (let i = 0; i < REFERENCES.length; i++) {
       const group = groupRefs.current[i]
@@ -320,7 +336,7 @@ export function ReferencesScene({ id, scene, policy, range }: SceneProps) {
   return createPortal(
     // wide: shifted right so the panels clear the DOM text column on the
     // left; narrow: fitted + slotted below the measured text block
-    <group position={groupPos} scale={groupScale}>
+    <group ref={rootRef} position={groupPos} scale={groupScale}>
       {REFERENCES.map((ref, i) => (
         <group
           key={ref.id}

@@ -525,22 +525,24 @@ void main() {
 }
 `
 
-const PICTO_SOURCES = [
-  PICTO_WEB, // 01 web
-  PICTO_WEBAPPS, // 02 webapps
-  PICTO_MOBILE, // 03 mobile
-  PICTO_API, // 04 api
-  PICTO_DESKTOP, // 05 desktop
-  PICTO_AI, // 06 ai
-  PICTO_AUTOMATION, // 07 automation
-]
+/* Keyed by SERVICES[].id — the deck order in lib/content.ts can change
+   freely without silently shuffling pictograms. */
+const PICTO_SOURCES: Record<string, string> = {
+  web: PICTO_WEB,
+  webapps: PICTO_WEBAPPS,
+  mobile: PICTO_MOBILE,
+  api: PICTO_API,
+  desktop: PICTO_DESKTOP,
+  ai: PICTO_AI,
+  automation: PICTO_AUTOMATION,
+}
 
 /**
  * Build the fragment shader for a service card.
- * @param serviceIdx index into lib/content.ts SERVICES order (0..6)
- * @param detail     false on low GPU tier — compiles the simplified pictogram
+ * @param serviceId id from lib/content.ts SERVICES (e.g. 'automation')
+ * @param detail    false on low GPU tier — compiles the simplified pictogram
  */
-export function cardFrag(serviceIdx: number, detail = true): string {
-  const picto = PICTO_SOURCES[serviceIdx % PICTO_SOURCES.length] ?? PICTO_WEB
+export function cardFrag(serviceId: string, detail = true): string {
+  const picto = PICTO_SOURCES[serviceId] ?? PICTO_WEB
   return `#define DETAIL ${detail ? 1 : 0}\n${FRAG_COMMON}\n${picto}\n${FRAG_MAIN}`
 }

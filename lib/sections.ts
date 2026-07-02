@@ -12,7 +12,7 @@ export const SECTIONS: { id: SceneId; height: number }[] = [
   { id: 'aiready', height: 1.5 },
   { id: 'about', height: 1.6 },
   { id: 'cta', height: 2.5 },
-  { id: 'process', height: 1.5 },
+  { id: 'process', height: 3.5 },
   { id: 'contact', height: 1.6 },
 ]
 
@@ -22,7 +22,7 @@ export const TOTAL_VH = SECTIONS.reduce((s, x) => s + x.height, 0)
  * Width of the shader-wipe transition zone between sections, in normalized
  * scroll. Every middle section's normalized height must exceed 2*TRANSITION_W
  * or its incoming wipe never resolves before the outgoing one starts
- * (shortest sections today: aiready & process 1.5/19.0 ≈ 0.079 > 0.07).
+ * (shortest section today: aiready 1.5/21.0 ≈ 0.071 > 0.07).
  */
 export const TRANSITION_W = 0.035
 

@@ -25,6 +25,8 @@ uniform float uContrast;
 uniform float uGrain;
 uniform float uVignette;
 uniform float uDisplace;
+uniform float uSeamGlow;
+uniform float uSeamWidth;
 varying vec2 vUv;
 
 float hash(vec2 p) {
@@ -59,6 +61,15 @@ void main() {
   vec3 c1 = texture2D(tMap1, vUv + duv * (1.0 - m)).rgb;
   vec3 c2 = texture2D(tMap2, vUv - duv * m).rgb;
   vec3 color = mix(c2, c1, m);
+
+  // luminous wipe front: a noisy teal seam + soft halo riding the boundary,
+  // alive only mid-transition — the black between sections reads as energy
+  float act = uProgress * (1.0 - uProgress) * 4.0;
+  float sd = (boundary - p) / uSeamWidth;
+  float core = exp(-sd * sd * 4.0);
+  float halo = exp(-sd * sd * 0.3);
+  float organic = 0.65 + 0.7 * noise(vUv * 9.0 + vec2(uTime * 0.6, -uTime * 0.3));
+  color += vec3(0.27, 0.94, 0.85) * (core * 0.9 + halo * 0.11) * act * uSeamGlow * organic;
 
   // grade: contrast, animated grain, vignette
   color = (color - 0.5) * uContrast + 0.5;

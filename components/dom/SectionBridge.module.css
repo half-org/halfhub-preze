@@ -1,0 +1,51 @@
+.bridge {
+  position: relative;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Centered on the exact section boundary. */
+.inner {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.line {
+  width: 1px;
+  height: clamp(48px, 9vh, 96px);
+}
+
+.lineIn {
+  background: linear-gradient(to bottom, transparent, rgba(69, 240, 216, 0.55));
+}
+
+.lineOut {
+  background: linear-gradient(to bottom, rgba(69, 240, 216, 0.55), transparent);
+}
+
+.label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8f8f8f;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+  .line {
+    height: clamp(40px, 7vh, 64px);
+  }
+}

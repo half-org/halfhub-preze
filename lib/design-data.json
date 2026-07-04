@@ -6,6 +6,8 @@
     "contrast": 1.04,
     "wipeDisplace": 0.06,
     "velocityInfluence": 0.12,
+    "seamGlow": 0.5,
+    "seamWidth": 0.09,
     "fadeInSeconds": 4.0
   },
   "camera": {
@@ -23,22 +25,16 @@
     }
   },
   "hero": {
-    "logoScale": 3.6,
-    "particleSize": 0.024,
-    "noiseFreq": 0.55,
-    "noiseAmp": 0.42,
-    "beltPeriod": 14,
-    "phaseA": 0.3,
-    "phaseB": 0.72,
-    "travelRatio": 0.22,
-    "entryScatter": 0.45,
-    "laneCount": 5,
-    "laneSpan": 0.34,
-    "pointerRadius": 1.4,
-    "pointerForce": 0.55,
-    "pulseSpeed": 0.6,
-    "splitDissolve": 0.9,
-    "scrollRotate": 2.6
+    "bandHeight": 0.58,
+    "ampChaos": 0.5,
+    "ampOrder": 0.045,
+    "noiseFreq": 0.5,
+    "speed": 0.22,
+    "tilt": -0.38,
+    "seamBoost": 0.35,
+    "pointerRadius": 1.6,
+    "pointerAmp": 0.45,
+    "opacity": 0.85
   },
   "services": {
     "cardW": 3.4,

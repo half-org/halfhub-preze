@@ -81,6 +81,8 @@ export function World({ policy }: { policy: GPUPolicy }) {
       uGrain: { value: design.composite.grain },
       uVignette: { value: design.composite.vignette },
       uDisplace: { value: design.composite.wipeDisplace },
+      uSeamGlow: { value: design.composite.seamGlow },
+      uSeamWidth: { value: design.composite.seamWidth },
     }),
     [targets]
   )
@@ -175,6 +177,11 @@ export function World({ policy }: { policy: GPUPolicy }) {
     gl.setRenderTarget(null)
 
     uniforms.uProgress.value = transition
+    // the luminous wipe front rides only the showcase transitions
+    // (home→services, services→references); elsewhere the DOM SectionBridge
+    // threads the sections together instead
+    uniforms.uSeamGlow.value =
+      design.composite.seamGlow * (id === 'home' || id === 'services' ? 1 : 0)
     uniforms.uVelocity.value = THREE.MathUtils.clamp(scrollState.velocity * 0.01, -1.5, 1.5)
     uniforms.uTime.value += d
     uniforms.uVisible.value = worldFade.value

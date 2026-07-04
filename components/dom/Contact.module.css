@@ -13,6 +13,83 @@
   padding: 0 clamp(20px, 4.5vw, 56px) 13vh;
 }
 
+/* Kicker + live studio clock on one line. */
+.kickerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+}
+
+.status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #a3a3a3;
+  margin: 0;
+}
+
+.statusDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: statusPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Expanding signal rings in the empty upper-right area. */
+.ping {
+  position: absolute;
+  right: clamp(40px, 9vw, 140px);
+  top: 16vh;
+  width: clamp(220px, 24vw, 330px);
+  height: auto;
+  pointer-events: none;
+}
+
+.pingRing {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: pingRing 5.4s ease-out infinite;
+}
+
+.pingRing2 {
+  animation-delay: 1.8s;
+}
+
+.pingRing3 {
+  animation-delay: 3.6s;
+}
+
+@keyframes pingRing {
+  0% {
+    transform: scale(0.12);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.7;
+  }
+  75%,
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
 .kicker {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -32,7 +109,7 @@
 }
 
 .body {
-  color: var(--dim);
+  color: #b9b9b9;
   font-size: clamp(1rem, 1.25vw, 1.15rem);
   line-height: 1.6;
   max-width: 36em;
@@ -44,7 +121,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--dim);
+  color: #a3a3a3;
   margin: 5vh 0 0;
 }
 
@@ -82,6 +159,23 @@
 .email:hover .arrow,
 .email:focus-visible .arrow {
   transform: translateX(0.35em);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusDot {
+    animation: none;
+  }
+  /* Only the static boundary ring + crosshair remain. */
+  .pingRing {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .ping {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {

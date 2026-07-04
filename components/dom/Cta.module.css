@@ -44,9 +44,30 @@
   font-weight: 300;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
   line-height: 1.6;
-  color: var(--dim);
+  color: #b9b9b9;
   max-width: 40em;
   margin: 1.2rem 0 0;
+}
+
+/* Demo block: copy left, clickable-demo window right. */
+.demoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  gap: clamp(28px, 4.5vw, 72px);
+  align-items: center;
+  max-width: 1220px;
+}
+
+.diagramWrap {
+  justify-self: end;
+  width: 100%;
+  max-width: 460px;
+}
+
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Generous bordered pill — shared by the demo CTA and the audit send. */
@@ -230,6 +251,227 @@
   margin: 0.9rem 0 0;
 }
 
+/* ------------------------------------------------- demo-window diagram -- */
+/* One shared 8s timeline: cursor flies in (0–18%), clicks (20%), progress
+   fills (24–46%), bars grow (28–48%), toggle flips (52–58%), everything
+   fades and restarts (94–100%). The rest state (animation: none, reduced
+   motion, unsupporting browsers) is the COMPLETED demo. */
+
+.diagTitle {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.diagBtn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.demoCursor {
+  opacity: 0;
+  animation: demoCursor 8s ease-in-out infinite;
+}
+
+@keyframes demoCursor {
+  0% {
+    transform: translate(370px, 255px);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  18% {
+    transform: translate(103px, 211px);
+  }
+  20% {
+    transform: translate(103px, 211px) scale(0.85);
+  }
+  23% {
+    transform: translate(103px, 211px) scale(1);
+  }
+  60% {
+    transform: translate(103px, 211px);
+    opacity: 1;
+  }
+  74% {
+    transform: translate(370px, 255px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(370px, 255px);
+    opacity: 0;
+  }
+}
+
+.demoRipple {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: demoRipple 8s linear infinite;
+}
+
+@keyframes demoRipple {
+  0%,
+  19% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  21% {
+    opacity: 0.8;
+    transform: scale(0.45);
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+.demoBtnFill {
+  animation: demoBtnFill 8s linear infinite;
+}
+
+@keyframes demoBtnFill {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  24%,
+  93% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.demoProgress {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: demoProgress 8s linear infinite;
+}
+
+@keyframes demoProgress {
+  0%,
+  24% {
+    transform: scaleX(0.001);
+    opacity: 1;
+  }
+  46%,
+  93% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+.demoBar1,
+.demoBar2,
+.demoBar3 {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: demoBar 8s ease-out infinite;
+}
+
+.demoBar2 {
+  animation-name: demoBar2;
+}
+
+.demoBar3 {
+  animation-name: demoBar3;
+}
+
+@keyframes demoBar {
+  0%,
+  28% {
+    transform: scaleY(0.001);
+    opacity: 1;
+  }
+  40%,
+  93% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+@keyframes demoBar2 {
+  0%,
+  32% {
+    transform: scaleY(0.001);
+    opacity: 1;
+  }
+  44%,
+  93% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+@keyframes demoBar3 {
+  0%,
+  36% {
+    transform: scaleY(0.001);
+    opacity: 1;
+  }
+  48%,
+  93% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+/* Knob rests in the ON position (cx=66); the loop starts it OFF. */
+.demoKnob {
+  animation: demoKnob 8s ease-in-out infinite;
+}
+
+@keyframes demoKnob {
+  0%,
+  52% {
+    transform: translateX(-16px);
+  }
+  58%,
+  93% {
+    transform: translateX(0);
+  }
+  98%,
+  100% {
+    transform: translateX(-16px);
+  }
+}
+
+@media (max-width: 900px) {
+  /* The demo window is decorative — keep the offer copy full-width instead. */
+  .demoGrid {
+    grid-template-columns: 1fr;
+  }
+  .diagramWrap {
+    display: none;
+  }
+}
+
 @media (max-width: 760px) {
   .block {
     padding-top: clamp(68px, 10vh, 96px);
@@ -246,5 +488,16 @@
   .arrow,
   .ctaBtn {
     transition: none;
+  }
+  /* Freeze the demo loop in its completed state; cursor/ripple stay hidden. */
+  .demoCursor,
+  .demoRipple,
+  .demoBtnFill,
+  .demoProgress,
+  .demoBar1,
+  .demoBar2,
+  .demoBar3,
+  .demoKnob {
+    animation: none;
   }
 }

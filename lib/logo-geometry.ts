@@ -1,7 +1,7 @@
 /**
  * HΛLF wordmark as raw polygons on a 0..308 × 0..100 grid (y grows down).
- * Canonical data lives in lib/logo-polys.json (shared with the Node bake
- * script scripts/bake-particles.mjs, which can't import TS).
+ * Canonical data lives in lib/logo-polys.json. Used by the SVG LogoMark
+ * (nav + loader).
  *
  * Brand motif: the logo is split horizontally at y=50 — top half solid,
  * bottom half outlined/dissolving ("half").

@@ -13,10 +13,30 @@
   padding: 0 clamp(20px, 4.5vw, 56px) 0 clamp(20px, 10vw, 160px);
 }
 
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: clamp(28px, 5vw, 88px);
+  align-items: center;
+  max-width: 1180px;
+}
+
 .inner {
   max-width: 760px;
-  border-left: 1px solid #1a1a1a;
+  border-left: 1px solid #262626;
   padding-left: clamp(20px, 3vw, 44px);
+}
+
+.diagramWrap {
+  justify-self: end;
+  width: 100%;
+  max-width: 380px;
+}
+
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .kicker {
@@ -35,6 +55,7 @@
   letter-spacing: -0.02em;
   color: var(--text);
   margin: 0.5em 0 0.6em;
+  text-wrap: balance;
 }
 
 /* Second half of the heading: transparent fill, 1px stroke in the text color.
@@ -46,11 +67,61 @@
 }
 
 .body {
-  color: var(--dim);
+  color: #b9b9b9;
   font-size: clamp(1rem, 1.3vw, 1.125rem);
   line-height: 1.7;
   max-width: 56ch;
   margin: 0;
+}
+
+/* --- Halves-circle diagram --- */
+
+.diagIdea {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.diagHalf {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.24em;
+}
+
+.diagSub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+/* Slow dash drift on the idea half — the unformed side keeps moving. */
+.ideaArc {
+  animation: ideaDrift 6s linear infinite;
+}
+
+@keyframes ideaDrift {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ideaArc {
+    animation: none;
+  }
+  .orbitDot {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .diagramWrap {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {

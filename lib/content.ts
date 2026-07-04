@@ -94,12 +94,18 @@ export const COPY = {
         desc: 'Aby s vaším webem uměli pracovat i agenti.',
         points: ['llms.txt & otevřený přístup pro AI crawlery', 'Strojově čitelná struktura a API', 'Volitelně MCP rozhraní pro agenty'],
       },
+      diagram: {
+        agents: ['AI asistent', 'AI vyhledávání', 'AI agent'],
+        checks: ['schema.org', 'llms.txt', 'API / MCP'],
+        web: 'váš web',
+      },
       note: 'Tenhle web to všechno má. Zkuste se na HALF zeptat svojí AI.',
     },
     about: {
       kicker: 'Studio',
       heading: 'Polovina je váš nápad.',
       body: 'HALF je software studio. Stavíme digitální produkty end-to-end — návrh, vývoj, nasazení, provoz. Malý tým bez mezivrstev: mluvíte přímo s lidmi, kteří váš produkt píší. Polovina je váš nápad. My jsme ta druhá — kód, design a dotažení do konce.',
+      diagram: { idea: 'váš nápad', half: 'HALF', sub: 'kód · design · dotažení' },
     },
     cta: {
       demo: {
@@ -108,6 +114,7 @@ export const COPY = {
         body: 'Postavíme vám klikací demo s testovacími daty — zdarma. Ne wireframe, ne prezentaci: produkt, který si osaháte. Bez faktury, bez závazku.',
         cta: 'Chci free demo',
         mailSubject: 'Free demo — mám nápad',
+        diagram: { title: 'demo — testovací data', button: 'Vyzkoušet' },
       },
       wizard: {
         kicker: 'AI mapa automatizací',
@@ -163,6 +170,7 @@ export const COPY = {
       body: 'Máte nápad nebo projekt? Napište nám — do 24 hodin se ozveme.',
       email: 'solutions.half@gmail.com',
       cta: 'Napsat e-mail',
+      status: 'Praha, CZ',
     },
     footer: { line: '© 2026 HALF — software studio' },
   },
@@ -201,12 +209,18 @@ export const COPY = {
         desc: 'So agents can work with your site too.',
         points: ['llms.txt & open access for AI crawlers', 'Machine-readable structure and APIs', 'Optional MCP endpoint for agents'],
       },
+      diagram: {
+        agents: ['AI assistant', 'AI search', 'AI agent'],
+        checks: ['schema.org', 'llms.txt', 'API / MCP'],
+        web: 'your site',
+      },
       note: 'This site has all of it. Try asking your AI about HALF.',
     },
     about: {
       kicker: 'Studio',
       heading: 'One half is your idea.',
       body: 'HALF is a software studio. We build digital products end-to-end — design, development, deployment, operations. A small team with no middle layers: you talk directly to the people writing your product. One half is your idea. We are the other — code, design, and follow-through.',
+      diagram: { idea: 'your idea', half: 'HALF', sub: 'code · design · delivery' },
     },
     cta: {
       demo: {
@@ -215,6 +229,7 @@ export const COPY = {
         body: "We'll build you a clickable demo with test data — for free. Not a wireframe, not a slide deck: a product you can click through yourself. No invoice, no commitment.",
         cta: 'I want a free demo',
         mailSubject: 'Free demo — I have an idea',
+        diagram: { title: 'demo — test data', button: 'Try it' },
       },
       wizard: {
         kicker: 'AI automation map',
@@ -270,6 +285,7 @@ export const COPY = {
       body: 'Got an idea or a project? Write to us — we reply within 24 hours.',
       email: 'solutions.half@gmail.com',
       cta: 'Send an email',
+      status: 'Prague, CZ',
     },
     footer: { line: '© 2026 HALF — software studio' },
   },
